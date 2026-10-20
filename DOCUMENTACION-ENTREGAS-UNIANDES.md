@@ -148,20 +148,23 @@ contador «Versión N» de Google es independiente. No confundir.
 | # | Commit | Problema | Fix |
 |---|---|---|---|
 | 1 | `243d363` | Sheets convertía `"12/12"` en fecha | Emitir `"12 de 12"` |
-| 2 | `bb81f55` | Estudiantes veían «Se perdió la conexión» al subir | Reintento automático 3x + mensajes claros (ver sección 9) |
+| 2 | `bb81f55` | Reintento automático 3x (ayudó a cortes breves, pero NO era la causa real) | Reintento 3x + mensajes claros |
 | 3 | `28d7f1c` | Errores de servidor devolvían HTML ilegible | try/catch en doGet/doPost → JSON legible (aportado por analista) |
+| 4 | `a3c9049` | **CAUSA REAL** de «Se perdió la conexión»: la barra de progreso (`x.upload.onprogress`) forzaba un preflight CORS (OPTIONS) que Apps Script responde con 405 | Quitar la barra de progreso + dedup al reintentar (aportado por analista) |
 
 ---
 
 ## 9. Lecciones / pitfalls (leer antes de tocar)
 
-1. **Anti-bot de Google en POST.** Google intermitentemente responde a los POST de
-   `script.google.com` con un desafío (HTTP 405 + HTML `ppConfig`, SIN cabecera
-   CORS). El navegador lo traduce a `x.onerror` → «Se perdió la conexión». Es
-   peor en IPs compartidas (wifi de universidad) y VPNs. **Fix ya aplicado:**
-   reintento 3x en `subir()` con espera 1.5s→3s.
-2. **`curl` desde un VPS SIEMPRE se come el anti-bot** (405). Para probar el
-   backend, usar `browser_console` (navegador real), nunca `curl` para POST.
+1. **Barra de progreso de subida = preflight CORS = 405.** Registrar
+   `x.upload.onprogress` convierte la petición en "no simple" y el navegador
+   manda antes un OPTIONS que Apps Script responde con 405 SIN cabeceras CORS →
+   `x.onerror` → «Se perdió la conexión». NUNCA registrar `x.upload.onprogress`
+   contra Apps Script. (Causa real del bug de los estudiantes.)
+2. **El anti-bot de Google SÍ existe, pero solo para curl/datacenter** (405 +
+   HTML `ppConfig`). No afecta a navegadores reales. No confundir ese 405 con el
+   del pitfall 1. Para probar el backend, usar `browser_console`, nunca `curl`
+   para POST.
 3. **Guardar ≠ desplegar.** Editar el código de Apps Script no actualiza el web
    app desplegado hasta hacer «Editar → Nueva versión».
 4. **`getActiveSpreadsheet()` no existe en proyectos standalone.** Usar
@@ -171,8 +174,8 @@ contador «Versión N» de Google es independiente. No confundir.
    siempre con navegador tras desplegar.
 7. **Cambios de calendario/casos van en DOS sitios** (gas-code + script principal).
 
-Detalle del anti-bot y el retry: ver skill `static-web-app-with-apps-script`,
-referencia `references/bot-protection-post-retry.md`.
+Detalle de la causa real y el fix: ver skill `static-web-app-with-apps-script`,
+referencia `references/upload-progress-cors-preflight.md`.
 
 ---
 
@@ -223,7 +226,9 @@ Pestaña Docente del sitio → tabla → eliminar fila (o directamente en la hoj
 
 ## 12. Estado actual (20-oct-2026)
 
-- ✅ Frontend con reintento + mensajes claros (publicado).
-- ✅ Backend Versión 4 con try/catch devolviendo JSON (desplegado 12:14 p.m.).
-- ✅ Pipeline verificado de extremo a extremo (hay 1 entrega de prueba registrada).
-- Pendiente del docente: borrar la fila de prueba «PRUEBA DOCENTE borrar» (Grupo 1).
+- ✅ Frontend corregido con la CAUSA REAL resuelta: sin barra de progreso (commit `a3c9049`).
+- ✅ Backend Versión 4 con try/catch devolviendo JSON (desplegado).
+- ✅ Subida de estudiante verificada al primer intento (fix confirmado end-to-end).
+- ✅ Hoja «Entregas» y carpeta Drive limpiadas de datos de prueba (10 archivos borrados).
+- Pendiente del docente: avisar a los grupos que ya pueden subir.
+- El backend en exe.dev quedó en pausa (spec en `SPEC-BACKEND-EXE-DEV.md`; no urgente tras este fix).
