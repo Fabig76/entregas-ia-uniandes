@@ -1,0 +1,671 @@
+<!doctype html>
+<!--
+  ENTREGAS SEMANALES DE PROYECTO · Seminario IA Generativa · UNIANDES · 2026
+  Un solo archivo para GitHub Pages. Los .zip se guardan en una carpeta de Google Drive
+  del docente y cada entrega queda registrada en una Hoja de cálculo de Google.
+
+  CALENDARIO (fecha oficial lunes 23:59 · prórroga miércoles 23:59 · hora de Ecuador)
+    Entrega 1 · lunes 19 oct → prórroga miércoles 21 oct · Semana 1 · Definición y diseño
+    Entrega 2 · lunes 26 oct → prórroga miércoles 28 oct · Semana 2 · MVP e integración con IA
+    Entrega 3 · lunes  2 nov → prórroga miércoles  4 nov · Semana 3 · RAG, agente y calidad
+    Entrega 4 · lunes  9 nov → prórroga miércoles 11 nov · Semana 4 · Versión final desplegada
+  Nada se cierra: un grupo puede subir cualquier entrega en cualquier momento (incluso adelantar).
+  Para cambiar fechas, edite ENTREGAS aquí abajo Y en el código de Apps Script.
+
+  INSTRUCCIONES PARA QUIEN PUBLICA
+  1. Cree una Hoja de cálculo de Google nueva › Extensiones › Apps Script › pegue el código
+     del bloque <script type="text/plain" id="gas-code"> (también se copia desde la pestaña Docente).
+  2. En el editor, elija la función «configurar» y pulse Ejecutar: Google pedirá permisos de
+     Drive y Hojas; acéptelos. Se crea la carpeta «Seminario IA Generativa · Entregas 2026»
+     con una subcarpeta por entrega. El registro de ejecución muestra su enlace.
+  3. Implementar › Nueva implementación › Aplicación web (Ejecutar como: Yo · Acceso: Cualquier persona).
+  4. Copie la URL en la constante ENDPOINT de abajo y publique este archivo.
+  La contraseña del docente no está en este archivo: solo su huella SHA-256.
+-->
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Entregas del proyecto · Seminario IA</title>
+<meta name="description" content="Entrega semanal del avance del proyecto por grupo, con lista de verificación y carga del .zip a Google Drive.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&family=Inter:wght@400;500;600;700&display=swap">
+<style>
+:root{
+  --bg:#F6F4EF; --card:#FFFFFF; --ink:#16181D; --muted:#5F6470; --line:#E6E2D9; --fill:#F1EEE7;
+  --w1:#2563EB; --w2:#7C3AED; --w3:#0E9384; --w4:#EA580C;
+  --ok:#15803D; --ok-s:#DCFCE7; --pro:#1D4ED8; --pro-s:#DBEAFE; --late:#B45309; --late-s:#FEF3C7; --bad:#DC2626; --bad-s:#FEE2E2; --none:#9CA3AF;
+  --shadow:0 1px 0 rgba(22,24,29,.04),0 12px 32px -12px rgba(22,24,29,.14);
+  --fd:"Plus Jakarta Sans","Inter",system-ui,sans-serif; --f:"Inter",-apple-system,"Segoe UI",system-ui,sans-serif;
+  color-scheme:light;
+}
+@media (prefers-color-scheme:dark){:root{
+  --bg:#111214; --card:#1B1D21; --ink:#F2F1EE; --muted:#A3A7B0; --line:#2E3138; --fill:#24272D;
+  --w1:#60A5FA; --w2:#A78BFA; --w3:#2DD4BF; --w4:#FB923C;
+  --ok:#4ADE80; --ok-s:#123321; --pro:#60A5FA; --pro-s:#1E3A5F; --late:#FBBF24; --late-s:#3A2C0A; --bad:#F87171; --bad-s:#3B1414;
+  --shadow:0 1px 0 rgba(0,0,0,.3),0 12px 32px -12px rgba(0,0,0,.6); color-scheme:dark}}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font-family:var(--f);font-size:16px;line-height:1.5;-webkit-font-smoothing:antialiased;
+  padding:0 max(16px,env(safe-area-inset-right,0)) 56px max(16px,env(safe-area-inset-left,0))}
+.wrap{max-width:900px;margin:0 auto}
+button,input,select,textarea{font:inherit;color:inherit}
+:focus-visible{outline:3px solid var(--wc,var(--w1));outline-offset:2px}
+[hidden]{display:none!important}
+a{color:var(--wc,var(--w1))}
+
+.top{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:20px 0 4px;flex-wrap:wrap}
+.brand{font-family:var(--fd);font-weight:800;letter-spacing:-.01em;display:flex;gap:10px;align-items:center}
+.brand .ic{width:32px;height:32px;border-radius:9px;background:linear-gradient(135deg,var(--w1),var(--w2) 40%,var(--w3) 70%,var(--w4));display:grid;place-items:center;color:#fff;font-size:17px}
+.tabs{display:flex;gap:2px;border-bottom:2px solid var(--line)}
+.tabs button{border:0;background:none;padding:8px 14px;font-weight:600;color:var(--muted);cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-2px}
+.tabs button[aria-selected="true"]{color:var(--ink);border-color:var(--ink)}
+
+h1{font-family:var(--fd);font-size:clamp(30px,5.6vw,46px);line-height:1.05;letter-spacing:-.03em;margin:22px 0 8px;font-weight:800}
+.lede{color:var(--muted);margin:0 0 22px;max-width:64ch}
+.card{background:var(--card);border:1px solid var(--line);border-radius:20px;box-shadow:var(--shadow);padding:22px}
+.stack{display:grid;gap:16px}
+h2{font-family:var(--fd);font-size:20px;letter-spacing:-.01em;margin:0;display:flex;align-items:center;gap:10px}
+.num{width:28px;height:28px;border-radius:50%;display:inline-grid;place-items:center;font-size:14px;font-weight:800;color:#fff;background:var(--wc)}
+.muted{color:var(--muted)}.small{font-size:14px}
+
+/* Línea de entregas */
+.timeline{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-bottom:18px}
+.tl{border:2px solid var(--line);background:var(--card);border-radius:16px;padding:12px 14px;text-align:left;cursor:pointer;display:grid;gap:3px;position:relative}
+.tl .k{font-size:12px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--c)}
+.tl b{font-family:var(--fd);font-size:15.5px;line-height:1.25}
+.tl .d{font-size:13px;color:var(--muted)}
+.tl .st{font-size:12px;font-weight:700;margin-top:4px}
+.tl[aria-pressed="true"]{border-color:var(--c);box-shadow:0 0 0 3px color-mix(in srgb,var(--c) 18%,transparent)}
+.tl:disabled{opacity:.55;cursor:not-allowed}
+.tl[data-e="1"]{--c:var(--w1)}.tl[data-e="2"]{--c:var(--w2)}.tl[data-e="3"]{--c:var(--w3)}.tl[data-e="4"]{--c:var(--w4)}
+
+.banner{border-radius:20px;padding:20px 22px;color:#fff;background:linear-gradient(135deg,var(--wc),color-mix(in srgb,var(--wc) 55%,#000));display:grid;gap:6px}
+.banner .k{font-size:12.5px;font-weight:800;letter-spacing:.07em;text-transform:uppercase;opacity:.9}
+.banner b{font-family:var(--fd);font-size:24px;letter-spacing:-.02em;line-height:1.15}
+.banner p{margin:0;opacity:.95;font-size:15px}
+.banner .cd{display:inline-block;margin-top:4px;padding:5px 12px;border-radius:999px;background:rgba(255,255,255,.2);font-weight:700;font-size:14px;width:max-content;max-width:100%}
+
+label.f{display:grid;gap:6px;font-weight:600;font-size:14.5px}
+label.f small{font-weight:400;color:var(--muted)}
+input[type=text],input[type=url],input[type=password],select,textarea{width:100%;min-width:0;border:1px solid var(--line);background:var(--fill);border-radius:12px;padding:12px 14px}
+input:focus,select:focus,textarea:focus{outline:2px solid var(--wc,var(--w1));background:var(--card)}
+textarea{min-height:76px;resize:vertical}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+
+/* Lista de verificación */
+.prog{display:flex;align-items:center;gap:12px}
+.prog .bar{flex:1;height:8px;border-radius:99px;background:var(--fill);overflow:hidden}
+.prog .bar i{display:block;height:100%;width:0;background:var(--wc);transition:width .25s}
+.prog b{font-variant-numeric:tabular-nums;font-size:14px;white-space:nowrap}
+.group-t{font-size:12.5px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin:6px 0 -4px}
+.chk{display:grid;grid-template-columns:24px 1fr;gap:12px;align-items:start;padding:12px 14px;border-radius:14px;border:1px solid var(--line);cursor:pointer;transition:background .15s,border-color .15s}
+.chk:hover{background:var(--fill)}
+.chk input{appearance:none;-webkit-appearance:none;width:24px;height:24px;margin:0;border-radius:7px;border:2px solid var(--line);background:var(--card);display:grid;place-items:center;cursor:pointer}
+.chk input:checked{background:var(--wc);border-color:var(--wc)}
+.chk input:checked::after{content:"";width:6px;height:11px;border:solid #fff;border-width:0 2.5px 2.5px 0;transform:translateY(-1px) rotate(45deg)}
+.chk:has(input:checked){border-color:color-mix(in srgb,var(--wc) 45%,transparent);background:color-mix(in srgb,var(--wc) 7%,transparent)}
+.chk .t{font-weight:600;font-size:15px}
+.chk .t code{font:600 13.5px ui-monospace,Menlo,Consolas,monospace;background:var(--fill);padding:1px 6px;border-radius:6px}
+.chk .h{font-size:13.5px;color:var(--muted);margin-top:2px}
+.opt-tag{font-size:11.5px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;padding:2px 8px;border-radius:99px;background:var(--fill);color:var(--muted);margin-left:6px;vertical-align:2px}
+
+/* Archivo */
+.drop{border:2px dashed var(--line);border-radius:18px;padding:26px;text-align:center;display:grid;gap:8px;justify-items:center;cursor:pointer;transition:border-color .15s,background .15s}
+.drop:hover,.drop.over{border-color:var(--wc);background:color-mix(in srgb,var(--wc) 6%,transparent)}
+.drop .ico{font-size:34px;line-height:1}
+.drop.has{border-style:solid;border-color:var(--ok);background:var(--ok-s)}
+.fname{font:600 14px ui-monospace,Menlo,Consolas,monospace;background:var(--fill);padding:6px 10px;border-radius:8px;word-break:break-all}
+.msg{border-radius:12px;padding:11px 14px;font-weight:600;font-size:14.5px}
+.msg.err{background:var(--bad-s);color:var(--bad)}
+.msg.ok{background:var(--ok-s);color:var(--ok)}
+.msg.warn{background:var(--late-s);color:var(--late)}
+.btn{border:1px solid var(--line);background:var(--card);border-radius:12px;padding:11px 16px;font-weight:700;cursor:pointer}
+.btn:hover{background:var(--fill)}
+.btn.primary{border:0;background:var(--wc);color:#fff;font-size:17px;padding:15px 20px;width:100%}
+.btn.primary:hover{filter:brightness(1.08)}
+.btn:disabled{opacity:.45;cursor:not-allowed;filter:none}
+.btns{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.upbar{height:10px;border-radius:99px;background:var(--fill);overflow:hidden}
+.upbar i{display:block;height:100%;width:0;background:var(--wc);transition:width .2s}
+.done{text-align:center;display:grid;gap:10px;justify-items:center;padding:30px 22px}
+.done .ico{width:76px;height:76px;border-radius:50%;background:var(--ok);color:#fff;display:grid;place-items:center;font-size:40px;font-weight:800}
+.receipt{display:grid;grid-template-columns:auto 1fr;gap:4px 14px;text-align:left;font-size:14.5px;background:var(--fill);border-radius:14px;padding:14px 16px;max-width:560px;width:100%}
+.receipt dt{color:var(--muted);font-weight:600}.receipt dd{margin:0;word-break:break-word}
+
+/* Tablero público y docente */
+.gridg{display:grid;grid-template-columns:repeat(auto-fill,minmax(70px,1fr));gap:8px}
+.gchip{border-radius:12px;padding:8px;text-align:center;font-size:13px;font-weight:700;background:var(--fill);color:var(--muted)}
+.gchip.ok{background:var(--ok-s);color:var(--ok)}.gchip.pro{background:var(--pro-s);color:var(--pro)}.gchip.late{background:var(--late-s);color:var(--late)}
+.mtx{border-collapse:separate;border-spacing:0;width:100%;min-width:640px;font-size:14px}
+.mtx th,.mtx td{padding:8px;border-bottom:1px solid var(--line);text-align:left;vertical-align:middle}
+.mtx th{font-size:12px;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);font-weight:700}
+.mtx th.e1{color:var(--w1)}.mtx th.e2{color:var(--w2)}.mtx th.e3{color:var(--w3)}.mtx th.e4{color:var(--w4)}
+.cell{display:grid;gap:2px;border:0;width:100%;text-align:left;border-radius:10px;padding:8px 10px;cursor:pointer;font-size:13px}
+.cell b{font-size:13.5px}
+.cell.ok{background:var(--ok-s);color:var(--ok)}.cell.pro{background:var(--pro-s);color:var(--pro)}.cell.late{background:var(--late-s);color:var(--late)}.cell.none{background:var(--fill);color:var(--muted);cursor:default}.cell.miss{background:var(--bad-s);color:var(--bad);cursor:default}
+.tw{overflow-x:auto}
+.stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+.stat{border-radius:16px;padding:14px;border:1px solid var(--line);display:grid;gap:2px}
+.stat b{font-family:var(--fd);font-size:30px;line-height:1;font-variant-numeric:tabular-nums}
+.stat span{font-size:13px;color:var(--muted);font-weight:600}
+.stat.e1 b{color:var(--w1)}.stat.e2 b{color:var(--w2)}.stat.e3 b{color:var(--w3)}.stat.e4 b{color:var(--w4)}
+.detail{border-radius:16px;background:var(--fill);padding:16px;display:grid;gap:8px;font-size:14.5px}
+.detail h3{margin:0;font-family:var(--fd);font-size:17px}
+.vers{display:grid;gap:6px}
+.vers div{display:flex;flex-wrap:wrap;gap:6px 12px;align-items:center;background:var(--card);border-radius:10px;padding:8px 10px}
+.pill{display:inline-block;padding:2px 9px;border-radius:99px;font-size:12px;font-weight:700}
+.pill.ok{background:var(--ok-s);color:var(--ok)}.pill.pro{background:var(--pro-s);color:var(--pro)}.pill.late{background:var(--late-s);color:var(--late)}
+pre.code{margin:0;max-height:240px;overflow:auto;background:var(--fill);border-radius:14px;padding:14px;font:12.5px/1.5 ui-monospace,Menlo,Consolas,monospace;white-space:pre-wrap}
+.note{background:var(--late-s);border-radius:14px;padding:12px 14px;font-size:14.5px}
+.toast{position:fixed;left:50%;bottom:calc(22px + env(safe-area-inset-bottom,0));transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:11px 18px;border-radius:12px;font-weight:600;font-size:14.5px;opacity:0;pointer-events:none;transition:opacity .2s;z-index:20;max-width:calc(100% - 32px)}
+.toast.on{opacity:1}
+@media (max-width:700px){.timeline,.stats{grid-template-columns:1fr 1fr}.row2{grid-template-columns:1fr}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top">
+    <div class="brand"><span class="ic" aria-hidden="true">⇪</span>Entregas del proyecto</div>
+    <div class="tabs" role="tablist" aria-label="Secciones">
+      <button role="tab" id="tEst" aria-selected="true" aria-controls="pEst">Entregar</button>
+      <button role="tab" id="tDoc" aria-selected="false" aria-controls="pDoc">Docente</button>
+    </div>
+  </div>
+
+  <!-- ESTUDIANTES -->
+  <section id="pEst" role="tabpanel" aria-labelledby="tEst">
+    <h1>Entrega semanal del avance</h1>
+    <p class="lede">Cada lunes, hasta las 23:59, un integrante sube el avance de su grupo en un solo archivo .zip. Antes de subirlo, marquen juntos la lista de verificación: es lo mismo que se revisa en la clase del viernes.</p>
+
+    <div class="timeline" id="timeline" aria-label="Calendario de entregas"></div>
+
+    <div class="stack" id="flow">
+      <div class="banner" id="banner"></div>
+
+      <form id="form" class="stack" novalidate>
+        <div class="card stack">
+          <h2><span class="num">1</span>Grupo y proyecto</h2>
+          <div class="row2">
+            <label class="f">Grupo / caso<select id="grupo" required><option value="">Elige tu grupo</option></select></label>
+            <label class="f">Nombre del proyecto <small>Igual que en el README. Ej.: TriajeSoporte</small><input type="text" id="proyecto" maxlength="60" autocomplete="off" placeholder="Nombre corto del proyecto"></label>
+          </div>
+          <label class="f">Integrantes <small>Nombres y apellidos, separados por comas</small><input type="text" id="integrantes" maxlength="200" placeholder="Ana Pérez, Luis Mora, Sofía Ruiz"></label>
+          <div class="row2">
+            <label class="f">Quién sube la entrega<input type="text" id="responsable" maxlength="80" autocomplete="name" placeholder="Tu nombre"></label>
+            <label class="f">Repositorio en GitHub<input type="url" id="repo" maxlength="200" placeholder="https://github.com/usuario/proyecto"></label>
+          </div>
+        </div>
+
+        <div class="card stack">
+          <h2><span class="num">2</span>Lista de verificación de la <span id="chkTitle">entrega</span></h2>
+          <p class="muted small" style="margin:0">Marquen cada punto solo si de verdad está en el .zip y en el repositorio. Si algo no alcanzó a estar listo, no lo marquen: expliquen qué falta en el comentario del paso 3. Los puntos «opcional» suman, pero no son obligatorios.</p>
+          <div class="prog"><span class="bar"><i id="chkBar"></i></span><b id="chkTxt">0 de 0</b></div>
+          <div class="stack" id="checklist" style="gap:8px"></div>
+        </div>
+
+        <div class="card stack">
+          <h2><span class="num">3</span>Archivo .zip</h2>
+          <p class="muted small" style="margin:0">Nombre obligatorio: <span class="fname" id="needName">NombreProyecto_Semana1.zip</span> · Máximo 20 MB. Comprimir la carpeta del proyecto <b>sin</b> <code>.env</code>, <code>.venv</code>, <code>node_modules</code> ni <code>__pycache__</code>.</p>
+          <label class="drop" id="drop" for="file">
+            <span class="ico" aria-hidden="true">🗂️</span>
+            <b id="dropT">Arrastra aquí el .zip o haz clic para elegirlo</b>
+            <span class="muted small" id="dropS">Solo archivos .zip</span>
+          </label>
+          <input type="file" id="file" accept=".zip,application/zip" hidden>
+          <label class="f">Comentario para el docente <small>(opcional) qué cambió, qué falta, dudas</small><textarea id="comentario" maxlength="600"></textarea></label>
+          <div class="msg err" id="err" hidden></div>
+          <div class="upbar" id="upbar" hidden><i id="upfill"></i></div>
+          <button class="btn primary" type="submit" id="send">Enviar entrega</button>
+          <span class="muted small" id="modeNote"></span>
+        </div>
+      </form>
+
+      <div class="card done" id="done" hidden>
+        <div class="ico">✓</div>
+        <h2 style="justify-content:center;font-size:24px">Entrega recibida</h2>
+        <span class="pill" id="dPill"></span>
+        <dl class="receipt" id="receipt"></dl>
+        <p class="muted small" style="margin:0;max-width:52ch">Tomen una captura de esta pantalla como comprobante. Si suben otra vez la misma entrega, se guarda como una nueva versión y el docente revisa la última.</p>
+        <button class="btn" type="button" id="again">Volver al formulario</button>
+      </div>
+
+      <div class="card stack">
+        <h2>Grupos que ya entregaron · <span id="pubTitle"></span></h2>
+        <div class="gridg" id="pub"></div>
+        <span class="muted small" id="pubNote"></span>
+      </div>
+    </div>
+  </section>
+
+  <!-- DOCENTE -->
+  <section id="pDoc" role="tabpanel" aria-labelledby="tDoc" hidden>
+    <h1>Panel del docente</h1>
+    <p class="lede">Qué ha entregado cada grupo, cuándo, con cuántos puntos de la lista y el enlace directo al .zip en su Google Drive.</p>
+    <form id="login" class="card stack" novalidate style="max-width:440px">
+      <label class="f">Usuario<input type="text" id="user" autocomplete="username" autocapitalize="off"></label>
+      <label class="f">Contraseña<input type="password" id="pass" autocomplete="current-password"></label>
+      <div class="msg err" id="loginErr" hidden></div>
+      <button class="btn primary" type="submit" style="--wc:var(--ink);color:var(--bg)">Entrar</button>
+    </form>
+    <div id="dash" class="stack" hidden>
+      <div class="card stack">
+        <div class="btns" style="justify-content:space-between">
+          <h2>Resumen</h2>
+          <div class="btns"><a class="btn" id="driveLink" target="_blank" rel="noopener" hidden>Abrir carpeta en Drive</a><button class="btn" type="button" id="refresh">Actualizar</button><button class="btn" type="button" id="csv">Copiar CSV</button><button class="btn" type="button" id="logout">Salir</button></div>
+        </div>
+        <div class="stats" id="stats"></div>
+        <span class="muted small" id="srcNote"></span>
+      </div>
+      <div class="card stack">
+        <h2>Entregas por grupo</h2>
+        <p class="muted small" style="margin:0">Verde: a tiempo · Ámbar: tardía · Rojo: venció sin entrega · Gris: todavía no vence. Pulse una celda para ver el detalle y las versiones.</p>
+        <div class="tw"><table class="mtx" id="mtx"></table></div>
+        <div class="detail" id="detail" hidden></div>
+      </div>
+      <div class="card stack">
+        <h2>Configuración</h2>
+        <p class="muted small" style="margin:0" id="cfgState"></p>
+        <div class="note">Una sola vez: Hoja de cálculo nueva › Extensiones › Apps Script › pegue este código › elija la función <b>configurar</b> y pulse Ejecutar (acepte los permisos) › Implementar › Nueva implementación › Aplicación web (Ejecutar como: Yo · Acceso: Cualquier persona) › copie la URL en la constante <b>ENDPOINT</b> de este archivo.</div>
+        <pre class="code" id="gasView"></pre>
+        <div class="btns"><button class="btn" type="button" id="copyGas">Copiar código de Apps Script</button></div>
+      </div>
+    </div>
+  </section>
+</div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script type="text/plain" id="gas-code">
+// Apps Script · Entregas semanales del proyecto · Seminario IA Generativa · UNIANDES 2026
+// Guarda cada .zip en Google Drive (carpeta raíz › una subcarpeta por entrega)
+// y registra cada envío en la hoja «Entregas». Primera vez: ejecute «configurar».
+const HUELLA_DOCENTE = '8b961ca30234e3d67466576a72d3d9b5602ef8330d8fb2bdbd3ed9396a26d6cc';
+const SHEET_ID = '1dzpNs56mv2e2nDTByvcQD6PTKpAdpA3alA-ykicDJqA'; // standalone: openById (no getActiveSpreadsheet)
+const RAIZ = 'Seminario IA Generativa · Entregas 2026';
+const MAX_MB = 20;
+const ENTREGAS = [
+  { n: 1, carpeta: 'Entrega 1 · Semana 1 · Definición y diseño (lunes 19-oct)',     limite: '2026-10-19T23:59:59-05:00', prorroga: '2026-10-21T23:59:59-05:00', obligatorios: 11 },
+  { n: 2, carpeta: 'Entrega 2 · Semana 2 · MVP e integración con IA (lunes 26-oct)', limite: '2026-10-26T23:59:59-05:00', prorroga: '2026-10-28T23:59:59-05:00', obligatorios: 14 },
+  { n: 3, carpeta: 'Entrega 3 · Semana 3 · RAG, agente y calidad (lunes 02-nov)',    limite: '2026-11-02T23:59:59-05:00', prorroga: '2026-11-04T23:59:59-05:00', obligatorios: 14 },
+  { n: 4, carpeta: 'Entrega 4 · Semana 4 · Versión final (lunes 09-nov)',            limite: '2026-11-09T23:59:59-05:00', prorroga: '2026-11-11T23:59:59-05:00', obligatorios: 14 }
+];
+const CASOS = ['Titulación y normativa académica','Reclamos de consumo','Triaje de soporte tecnológico','Planificador turístico','Orientación sobre dengue','Pliegos de contratación pública','Beneficios y liquidaciones laborales','Simulador de situaciones viales','Asistente para productores de cacao','Revisor de código seguro','Calendario tributario RIMPE'];
+const HOJA = 'Entregas';
+const COLS = ['fecha','entrega','grupo','caso','proyecto','integrantes','responsable','repositorio','archivo_original','archivo_drive','url','id','tamano_kb','checklist','estado','version','comentario'];
+
+function configurar() {
+  const c = carpetas_(); hoja_();
+  Logger.log('Listo. Carpeta de entregas: ' + c.raiz.getUrl());
+}
+function carpetas_() {
+  const P = PropertiesService.getScriptProperties();
+  let raiz = null;
+  try { raiz = DriveApp.getFolderById(P.getProperty('RAIZ_ID')); } catch (e) {}
+  if (!raiz) {
+    raiz = DriveApp.createFolder(RAIZ);
+    raiz.setDescription('Entregas semanales de los 11 grupos. Una subcarpeta por entrega. Los archivos se crean desde la página de entregas.');
+    P.setProperty('RAIZ_ID', raiz.getId());
+  }
+  const sub = {};
+  ENTREGAS.forEach(e => {
+    const it = raiz.getFoldersByName(e.carpeta);
+    sub[e.n] = it.hasNext() ? it.next() : raiz.createFolder(e.carpeta);
+  });
+  return { raiz: raiz, sub: sub };
+}
+function hoja_() {
+  const ss = SpreadsheetApp.openById(SHEET_ID);
+  let sh = ss.getSheetByName(HOJA);
+  if (!sh) { sh = ss.insertSheet(HOJA); sh.appendRow(COLS); sh.setFrozenRows(1); }
+  return sh;
+}
+function limpio_(v, max) { let s = String(v == null ? '' : v).replace(/[\r\n\t]+/g, ' ').trim().slice(0, max); if (/^[=+\-@]/.test(s)) s = "'" + s; return s; }
+function salida_(o) { return ContentService.createTextOutput(JSON.stringify(o)).setMimeType(ContentService.MimeType.JSON); }
+function filas_() {
+  const v = hoja_().getDataRange().getValues(); v.shift();
+  return v.map(r => ({ fecha: r[0], e: +r[1], g: +r[2], caso: r[3], proyecto: r[4], integrantes: r[5], responsable: r[6], repo: r[7], original: r[8], archivo: r[9], url: r[10], kb: r[12], checklist: r[13], estado: r[14], version: +r[15], comentario: r[16] }));
+}
+function doGet(e) {
+  const p = e.parameter || {};
+  if (p.a === 'datos') {
+    if (p.h !== HUELLA_DOCENTE) return salida_({ ok: false, error: 'acceso' });
+    return salida_({ ok: true, filas: filas_(), drive: carpetas_().raiz.getUrl() });
+  }
+  // Público: solo qué grupo entregó qué y cuándo (sin nombres ni enlaces)
+  return salida_({ ok: true, publico: filas_().map(f => ({ e: f.e, g: f.g, estado: f.estado, fecha: f.fecha, version: f.version })) });
+}
+function doPost(e) {
+  let d; try { d = JSON.parse(e.postData.contents); } catch (x) { return salida_({ ok: false, error: 'Formato inválido.' }); }
+  const ent = ENTREGAS.filter(x => x.n === +d.entrega)[0];
+  const g = parseInt(d.grupo, 10);
+  if (!ent) return salida_({ ok: false, error: 'Entrega no válida.' });
+  const ahora = new Date();
+  if (!(g >= 1 && g <= 11)) return salida_({ ok: false, error: 'Grupo no válido.' });
+  const proyecto = limpio_(d.proyecto, 60);
+  if (proyecto.length < 3) return salida_({ ok: false, error: 'Falta el nombre del proyecto.' });
+  if (!/^https:\/\/github\.com\/[\w.-]+\/[\w.-]+\/?$/.test(String(d.repo || '').trim())) return salida_({ ok: false, error: 'El enlace del repositorio no es válido.' });
+  if (!Array.isArray(d.checks)) return salida_({ ok: false, error: 'Falta la lista de verificación.' });
+  if (d.checks.length < ent.obligatorios && String(d.comentario || '').trim().length < 20) return salida_({ ok: false, error: 'La lista está incompleta: expliquen en el comentario qué falta.' });
+  if (!/\.zip$/i.test(String(d.nombreArchivo || ''))) return salida_({ ok: false, error: 'El archivo debe ser .zip.' });
+  const b64 = String(d.datos || '');
+  if (b64.length > MAX_MB * 1024 * 1024 * 1.37) return salida_({ ok: false, error: 'El archivo supera ' + MAX_MB + ' MB.' });
+  const bytes = Utilities.base64Decode(b64);
+  if (bytes.length < 22 || bytes[0] !== 0x50 || bytes[1] !== 0x4B) return salida_({ ok: false, error: 'El archivo no es un .zip válido.' });
+
+  const lock = LockService.getScriptLock(); lock.waitLock(20000);
+  try {
+    const previas = filas_().filter(f => f.e === ent.n && f.g === g).length;
+    const version = previas + 1;
+    const estado = ahora <= new Date(ent.limite) ? 'A tiempo' : ahora <= new Date(ent.prorroga) ? 'Con prórroga' : 'Tardía';
+    const gg = ('0' + g).slice(-2);
+    const stamp = Utilities.formatDate(ahora, 'America/Guayaquil', 'yyyy-MM-dd HHmm');
+    const nombre = 'G' + gg + ' · ' + proyecto.replace(/[\\/:*?"<>|]/g, '') + ' · Entrega ' + ent.n + ' · v' + version + ' · ' + stamp + '.zip';
+    const archivo = carpetas_().sub[ent.n].createFile(Utilities.newBlob(bytes, 'application/zip', nombre));
+    archivo.setDescription('Grupo ' + g + ' (' + CASOS[g - 1] + ') · ' + proyecto + ' · ' + estado + ' · subido por ' + limpio_(d.responsable, 80) + ' · repo ' + d.repo);
+    hoja_().appendRow([ahora, ent.n, g, CASOS[g - 1], proyecto, limpio_(d.integrantes, 200), limpio_(d.responsable, 80), limpio_(d.repo, 200),
+      limpio_(d.nombreArchivo, 120), nombre, archivo.getUrl(), archivo.getId(), Math.round(bytes.length / 1024),
+      d.checks.length + '/' + (+d.totalChecks || d.checks.length), estado, version, limpio_(d.comentario, 600)]);
+    return salida_({ ok: true, archivo: nombre, version: version, estado: estado, fecha: ahora });
+  } finally { lock.releaseLock(); }
+}
+</script>
+
+<script>
+/* ===== Configuración: pegue aquí la URL de la aplicación web de Apps Script ===== */
+const ENDPOINT = "";
+/* ================================================================================ */
+const HUELLA = "8b961ca30234e3d67466576a72d3d9b5602ef8330d8fb2bdbd3ed9396a26d6cc";
+const MAX_MB = 20;
+const CASOS = ["Titulación y normativa académica","Reclamos de consumo","Triaje de soporte tecnológico","Planificador turístico","Orientación sobre dengue","Pliegos de contratación pública","Beneficios y liquidaciones laborales","Simulador de situaciones viales","Asistente para productores de cacao","Revisor de código seguro","Calendario tributario RIMPE"];
+
+/* Lista común a todas las entregas */
+const COMUNES = [
+  ["zip", "El .zip lleva el nombre del proyecto", "Ej.: <code>TriajeSoporte_Semana1.zip</code>. Es la carpeta completa del proyecto, con la estructura estándar."],
+  ["sec", "El .zip NO contiene secretos ni basura", "Sin <code>.env</code>, sin claves de API, sin <code>.venv</code>, <code>node_modules</code> ni <code>__pycache__</code>. Solo <code>.env.example</code> sin valores."],
+  ["git", "El repositorio está al día con lo que subimos", "Lo mismo del .zip está en GitHub, con commits de los tres integrantes repartidos en la semana."]
+];
+/* Calendario y lista de cada entrega (tomado de la Guía de entregables del seminario) */
+const ENTREGAS = [
+  { n:1, sem:"Semana 1", tema:"Definición del problema y diseño de la solución", limite:"2026-10-19T23:59:59-05:00", prorroga:"2026-10-21T23:59:59-05:00", prorrogaFecha:"miércoles 21 de octubre", fecha:"lunes 19 de octubre",
+    resumen:"Qué se construye, para quién, con qué fuentes y con qué arquitectura (lo revisado el viernes 16).",
+    items:[
+      ["s1a","<code>docs/01-propuesta.md</code>","Problema real, usuarios, alcance y alcance negativo (lo que nunca hará), riesgos y modelo elegido con justificación."],
+      ["s1b","<code>docs/02-requisitos.md</code>","Al menos 8 historias de usuario con criterios «Dado… cuando… entonces…» y requisitos no funcionales medibles."],
+      ["s1c","<code>docs/03-arquitectura.md</code>","Diagrama (Mermaid o imagen) con frontend, backend, modelo, base vectorial, herramientas y fuentes; flujo de una consulta."],
+      ["s1d","<code>docs/04-fuentes.md</code>","Inventario de fuentes: documento, origen oficial, URL, vigencia, formato y fragmentación prevista."],
+      ["s1e","Levantamiento real: mínimo 15 preguntas","Resultados de la encuesta, entrevista o preguntas frecuentes de la Fase 1 del caso (en <code>docs/</code>)."],
+      ["s1f","Fuentes descargadas en <code>data/raw/</code>","Los documentos oficiales del caso ya están en el proyecto (o sus enlaces, si son muy pesados)."],
+      ["s1g","README inicial, <code>.gitignore</code> y <code>.env.example</code>","Con la estructura de carpetas estándar del seminario."],
+      ["s1h","Evidencias en <code>docs/evidencias/semana-1/</code>","Capturas, notas de la revisión 1 y decisiones tomadas en la semana."],
+      ["s1i","FastAPI con <code>/health</code> respondiendo en local","Esqueleto ejecutable: suma ventaja para la semana 2.", true]
+    ]},
+  { n:2, sem:"Semana 2", tema:"MVP e integración con IA generativa", limite:"2026-10-26T23:59:59-05:00", prorroga:"2026-10-28T23:59:59-05:00", prorrogaFecha:"miércoles 28 de octubre", fecha:"lunes 26 de octubre",
+    resumen:"Backend y frontend funcionando de extremo a extremo con el modelo (lo revisado el viernes 23).",
+    items:[
+      ["s2a","Endpoint principal en FastAPI con Pydantic","<code>POST /chat</code>, <code>/analizar</code>, <code>/clasificar</code> o <code>/planificar</code>: streaming en conversacionales, JSON con esquema en los demás."],
+      ["s2b","<code>app/services/llm.py</code>","El cliente del modelo encapsulado: cambiar de proveedor no toca los endpoints."],
+      ["s2c","<code>app/prompts/system_v1.md</code> y 3 versiones probadas","Rol, tono, restricciones e instrucción de abstenerse cuando no sabe."],
+      ["s2d","<code>docs/05-prompts.md</code>","Tabla que compara las 3 versiones con 10 entradas (correcta / inventa / formato)."],
+      ["s2e","Frontend funcional","Interfaz propia del producto; deshabilita el botón mientras espera y muestra errores comprensibles."],
+      ["s2f","Clave solo en variables de entorno","<code>.env</code> en <code>.gitignore</code> y verificado que no aparece en ningún commit."],
+      ["s2g","Manejo de errores del proveedor","429 con reintentos y espera exponencial, tiempo agotado y respuesta vacía."],
+      ["s2h","Log por solicitud","Tokens consumidos y tiempo de respuesta."],
+      ["s2i","Pruebas con un mock del modelo","<code>pytest</code> prueba el endpoint sin gastar API."],
+      ["s2j","Arquitectura y decisiones actualizadas","<code>docs/03-arquitectura.md</code> (C4) y <code>docs/09-decisiones.md</code> con los ADR de la semana."],
+      ["s2k","Evidencias en <code>docs/evidencias/semana-2/</code>","Capturas funcionando, comparación de prompts, decisiones y problemas encontrados."]
+    ]},
+  { n:3, sem:"Semana 3", tema:"RAG, agente y calidad", limite:"2026-11-02T23:59:59-05:00", prorroga:"2026-11-04T23:59:59-05:00", prorrogaFecha:"miércoles 4 de noviembre", fecha:"lunes 2 de noviembre",
+    resumen:"Respuestas fundamentadas y citadas, agente con herramientas reales y calidad medida (lo revisado el viernes 30).",
+    items:[
+      ["s3a","<code>scripts/ingest.py</code> reproducible","Extrae, limpia, fragmenta, genera embeddings y guarda con metadatos (documento, sección, vigencia, URL)."],
+      ["s3b","<code>docs/06-rag.md</code>","Justificación de la fragmentación: tamaño, solapamiento y por qué por artículo o sección."],
+      ["s3c","Respuestas con cita obligatoria","El frontend muestra las fuentes usadas; filtros por metadatos si el caso los requiere."],
+      ["s3d","Abstención implementada y probada","Ante preguntas sin respuesta en las fuentes, el sistema lo dice y orienta."],
+      ["s3e","Agente con las herramientas del caso","Cada herramienta con esquema Pydantic, implementación determinista y límite de iteraciones."],
+      ["s3f","Parámetros en <code>config/</code>","Tarifas, umbrales, salario básico o calendarios: nunca en el código ni en el prompt."],
+      ["s3g","Confirmación humana","Antes de registrar, enviar o derivar, demostrable en la interfaz."],
+      ["s3h","Conjunto de evaluación en <code>eval/</code>","20 preguntas de referencia (y casos de cálculo si aplica) con <code>run_eval.py</code>."],
+      ["s3i","<code>docs/07-evaluacion.md</code>","Métricas, fallos diagnosticados (¿recuperación o generación?) y qué se cambió."],
+      ["s3j","Pruebas con <code>pytest</code>","De las herramientas del agente y de la construcción del prompt."],
+      ["s3k","Evidencias en <code>docs/evidencias/semana-3/</code>","Capturas con citas, pruebas de abstención y de inyección en documentos."]
+    ]},
+  { n:4, sem:"Semana 4", tema:"Versión final desplegada", limite:"2026-11-09T23:59:59-05:00", prorroga:"2026-11-11T23:59:59-05:00", prorrogaFecha:"miércoles 11 de noviembre", fecha:"lunes 9 de noviembre",
+    resumen:"La versión final después de la sustentación del sábado 7, con las correcciones que surgieron en ella.",
+    items:[
+      ["s4a","URL pública en el README","Funcionando, con <code>/health</code> respondiendo."],
+      ["s4b","Credenciales solo en la plataforma","Ninguna en el código, el Dockerfile ni el historial de Git (verificado)."],
+      ["s4c","Índice persistente","La aplicación sobrevive a un reinicio y sigue respondiendo con citas."],
+      ["s4d","<code>docs/08-pruebas.md</code>","15 o más casos ejecutados contra la URL desplegada, incluida la inyección de prompt."],
+      ["s4e","Evaluación repetida y comparada","Resultados de la versión final frente a la semana 3."],
+      ["s4f","Límite de tasa y errores seguros","Nunca se muestra al usuario el error crudo del proveedor."],
+      ["s4g","Aviso de IA y tratamiento de datos","Limitaciones del sistema y minimización de datos personales documentada."],
+      ["s4h","README final y <code>docs/09-decisiones.md</code>","Un integrante nuevo instala y ejecuta en diez minutos; decisiones técnicas y éticas justificadas."],
+      ["s4i","Declaración de uso de IA y aportes","Tabla de aportes por integrante."],
+      ["s4j","Presentación de sustentación en PDF","Dentro de <code>docs/</code> (12 minutos)."],
+      ["s4k","Evidencias en <code>docs/evidencias/semana-4/</code>","Despliegue, pruebas en producción y observaciones de la sustentación."]
+    ]}
+];
+const K = "entregas-ia:";
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;" }[c]));
+const strip = s => String(s).replace(/<[^>]+>/g, "");
+const ls = { get(k){ try { return localStorage.getItem(K+k) } catch(e){ return null } }, set(k,v){ try { localStorage.setItem(K+k,v) } catch(e){} } };
+const norm = s => String(s||"").normalize("NFD").replace(/[̀-ͯ]/g,"").toLowerCase().replace(/[^a-z0-9]/g,"");
+const pascal = s => String(s||"").normalize("NFD").replace(/[̀-ͯ]/g,"").split(/[^A-Za-z0-9]+/).filter(Boolean).map(w => w[0].toUpperCase()+w.slice(1)).join("");
+const fmt = d => new Date(d).toLocaleString("es-EC", { timeZone:"America/Guayaquil", weekday:"short", day:"numeric", month:"short", hour:"2-digit", minute:"2-digit" });
+function toast(m){ const t=$("#toast"); t.textContent=m; t.classList.add("on"); clearTimeout(t._h); t._h=setTimeout(()=>t.classList.remove("on"),2600) }
+const WC = n => `var(--w${n})`;
+function actual(){ const now = new Date(); return ENTREGAS.find(e => now <= new Date(e.limite)) || ENTREGAS[ENTREGAS.length-1] }
+let sel = actual(), archivo = null, publico = [];
+
+/* ---------- Pestañas ---------- */
+function tab(w){ const e = w === "est"; $("#tEst").setAttribute("aria-selected", e); $("#tDoc").setAttribute("aria-selected", !e); $("#pEst").hidden = !e; $("#pDoc").hidden = e }
+$("#tEst").onclick = () => tab("est"); $("#tDoc").onclick = () => tab("doc");
+if (location.hash === "#docente") tab("doc");
+
+/* ---------- Estudiantes ---------- */
+$("#grupo").insertAdjacentHTML("beforeend", CASOS.map((c,i) => `<option value="${i+1}">Grupo ${i+1} · ${esc(c)}</option>`).join(""));
+const saved = JSON.parse(ls.get("form") || "{}");
+["grupo","proyecto","integrantes","responsable","repo"].forEach(k => { if (saved[k]) $("#"+k).value = saved[k] });
+["grupo","proyecto","integrantes","responsable","repo"].forEach(k => $("#"+k).addEventListener("input", () => {
+  const o = {}; ["grupo","proyecto","integrantes","responsable","repo"].forEach(x => o[x] = $("#"+x).value); ls.set("form", JSON.stringify(o)); nombreEsperado(); validarArchivo();
+}));
+function pintarTimeline(){
+  const now = new Date();
+  $("#timeline").innerHTML = ENTREGAS.map(e => {
+    const venc = now > new Date(e.prorroga);
+    const mine = publico.filter(p => p.e === e.n && String(p.g) === $("#grupo").value);
+    const st = mine.length ? "✓ Tu grupo entregó" : venc ? "Tardía · se acepta igual" : "Abierta";
+    return `<button type="button" class="tl" data-e="${e.n}" aria-pressed="${sel.n === e.n}"><span class="k">Entrega ${e.n} · ${e.sem}</span><b>${esc(e.tema)}</b><span class="d">${esc(e.fecha)} · 23:59 (prórroga ${esc(e.prorrogaFecha)})</span><span class="st" style="color:${mine.length ? "var(--ok)" : venc ? "var(--late)" : "var(--muted)"}">${st}</span></button>`;
+  }).join("");
+}
+$("#timeline").addEventListener("click", e => { const b = e.target.closest(".tl"); if (!b || b.disabled) return; sel = ENTREGAS[+b.dataset.e-1]; pintarEntrega() });
+function restante(ms){ const d = Math.floor(ms/864e5), h = Math.floor(ms%864e5/36e5), m = Math.floor(ms%36e5/6e4); return (d ? d + " d " : "") + h + " h " + m + " min" }
+function cuentaAtras(){
+  const now = new Date();
+  const msOficial = new Date(sel.limite) - now;
+  if (msOficial > 0) return "Quedan " + restante(msOficial) + " · fecha oficial cierra el " + fmt(new Date(sel.limite));
+  const msPro = new Date(sel.prorroga) - now;
+  if (msPro > 0) return "En prórroga: quedan " + restante(msPro) + " · prórroga cierra el " + fmt(new Date(sel.prorroga));
+  return "Prórroga vencida el " + fmt(new Date(sel.prorroga)) + " · aún puedes entregar (quedará tardía)";
+}
+function pintarEntrega(){
+  document.body.style.setProperty("--wc", WC(sel.n));
+  $("#banner").innerHTML = `<span class="k">Entrega ${sel.n} · ${sel.sem} · ${esc(sel.fecha)}</span><b>${esc(sel.tema)}</b><p>${esc(sel.resumen)}</p><span class="cd" id="cd">${esc(cuentaAtras())}</span>`;
+  $("#chkTitle").textContent = "entrega " + sel.n;
+  const all = sel.items.map(i => ({ id:i[0], t:i[1], h:i[2], opt:!!i[3] })).concat(COMUNES.map(c => ({ id:"c-"+c[0], t:c[1], h:c[2], opt:false })));
+  const marc = JSON.parse(ls.get("chk"+sel.n) || "[]");
+  const row = i => `<label class="chk"><input type="checkbox" value="${i.id}" ${marc.includes(i.id) ? "checked" : ""} ${i.opt ? 'data-opt="1"' : ""}><span><span class="t">${i.t}${i.opt ? '<span class="opt-tag">opcional</span>' : ""}</span><div class="h">${i.h}</div></span></label>`;
+  $("#checklist").innerHTML = `<div class="group-t">Contenido de la ${sel.sem.toLowerCase()}</div>` + all.filter(i => !i.id.startsWith("c-")).map(row).join("") + `<div class="group-t">Antes de subir</div>` + all.filter(i => i.id.startsWith("c-")).map(row).join("");
+  progreso(); nombreEsperado(); validarArchivo(); pintarTimeline(); pintarPublico();
+}
+function obligatorios(){ return [...document.querySelectorAll("#checklist input:not([data-opt])")] }
+function progreso(){
+  const req = obligatorios(), ok = req.filter(x => x.checked).length;
+  $("#chkBar").style.width = (req.length ? 100*ok/req.length : 0) + "%";
+  $("#chkTxt").textContent = ok + " de " + req.length + " obligatorios";
+  ls.set("chk"+sel.n, JSON.stringify([...document.querySelectorAll("#checklist input:checked")].map(x => x.value)));
+}
+$("#checklist").addEventListener("change", progreso);
+function nombreEsperado(){ $("#needName").textContent = (pascal($("#proyecto").value) || "NombreProyecto") + "_Semana" + sel.n + ".zip" }
+
+/* Archivo */
+const drop = $("#drop");
+["dragenter","dragover"].forEach(ev => drop.addEventListener(ev, e => { e.preventDefault(); drop.classList.add("over") }));
+["dragleave","drop"].forEach(ev => drop.addEventListener(ev, e => { e.preventDefault(); drop.classList.remove("over") }));
+drop.addEventListener("drop", e => { if (e.dataTransfer.files[0]) tomar(e.dataTransfer.files[0]) });
+$("#file").addEventListener("change", e => { if (e.target.files[0]) tomar(e.target.files[0]) });
+async function tomar(f){
+  archivo = f;
+  const head = new Uint8Array(await f.slice(0,4).arrayBuffer());
+  archivo._pk = head[0] === 0x50 && head[1] === 0x4B;
+  validarArchivo();
+}
+function problemaArchivo(){
+  if (!archivo) return "Falta elegir el archivo .zip.";
+  if (!/\.zip$/i.test(archivo.name) || !archivo._pk) return "El archivo debe ser un .zip de verdad (no .rar, .7z ni una carpeta).";
+  if (archivo.size > MAX_MB*1024*1024) return `El .zip pesa ${(archivo.size/1048576).toFixed(1)} MB y el máximo es ${MAX_MB} MB. Quiten .venv, node_modules, modelos o datos pesados (dejen el enlace en data/raw/).`;
+  const p = norm($("#proyecto").value);
+  if (!p) return "Escriban primero el nombre del proyecto.";
+  if (!norm(archivo.name).includes(p)) return `El nombre del .zip debe incluir el nombre del proyecto. Renómbrenlo a ${$("#needName").textContent} y vuelvan a elegirlo.`;
+  return "";
+}
+function validarArchivo(){
+  if (!archivo) { drop.classList.remove("has"); $("#dropT").textContent = "Arrastra aquí el .zip o haz clic para elegirlo"; $("#dropS").textContent = "Solo archivos .zip"; return }
+  const p = problemaArchivo();
+  drop.classList.toggle("has", !p);
+  $("#dropT").textContent = archivo.name;
+  $("#dropS").textContent = (archivo.size/1048576).toFixed(2) + " MB · " + (p ? "revisar" : "listo para enviar");
+  const err = $("#err"); if (p && archivo) { err.textContent = p; err.hidden = false } else err.hidden = true;
+}
+$("#modeNote").textContent = ENDPOINT ? "El archivo se guarda en la carpeta de Google Drive del docente." : "Modo de prueba: sin conexión configurada, solo se registra en este navegador (el archivo no se sube).";
+
+function leerB64(f){ return new Promise((ok, no) => { const r = new FileReader(); r.onload = () => ok(String(r.result).split(",")[1]); r.onerror = no; r.readAsDataURL(f) }) }
+function subir(body, onProg){
+  return new Promise(resolve => {
+    const x = new XMLHttpRequest(); x.open("POST", ENDPOINT); x.setRequestHeader("Content-Type", "text/plain;charset=utf-8");
+    x.upload.onprogress = e => e.lengthComputable && onProg(e.loaded/e.total);
+    x.onload = () => { try { resolve(JSON.parse(x.responseText)) } catch(e) { resolve({ ok:false, error:"Respuesta inesperada del servidor. Intenten otra vez." }) } };
+    x.onerror = () => resolve({ ok:false, error:"Se perdió la conexión durante la subida. Intenten otra vez." });
+    x.timeout = 300000; x.ontimeout = () => resolve({ ok:false, error:"La subida tardó demasiado. Revisen su conexión." });
+    x.send(body);
+  });
+}
+$("#form").addEventListener("submit", async e => {
+  e.preventDefault();
+  const err = $("#err"), g = $("#grupo").value, proyecto = $("#proyecto").value.trim(), repo = $("#repo").value.trim();
+  const falta = !g ? "Elijan el grupo." : proyecto.length < 3 ? "Escriban el nombre del proyecto." : !$("#integrantes").value.trim() ? "Escriban los integrantes." : !$("#responsable").value.trim() ? "Escriban quién sube la entrega." :
+    !/^https:\/\/github\.com\/[\w.-]+\/[\w.-]+\/?$/.test(repo) ? "El repositorio debe ser un enlace como https://github.com/usuario/proyecto" :
+    obligatorios().some(x => !x.checked) && $("#comentario").value.trim().length < 20 ? "Faltan puntos obligatorios de la lista. Complétenlos antes de subir o, si no alcanzan, expliquen en el comentario qué falta y por qué (mínimo 20 caracteres)." : problemaArchivo();
+  if (falta) { err.textContent = falta; err.hidden = false; err.scrollIntoView({ block:"center", behavior:"smooth" }); return }
+  err.hidden = true; const btn = $("#send"); btn.disabled = true; btn.textContent = "Preparando el archivo…";
+  const checks = [...document.querySelectorAll("#checklist input:checked")].map(x => x.value);
+  const meta = { entrega: sel.n, grupo: +g, proyecto, integrantes: $("#integrantes").value.trim(), responsable: $("#responsable").value.trim(), repo, comentario: $("#comentario").value.trim(),
+    checks, totalChecks: document.querySelectorAll("#checklist input").length, nombreArchivo: archivo.name };
+  let res;
+  if (!ENDPOINT) {
+    const loc = JSON.parse(ls.get("local") || "[]"), now = new Date();
+    const version = loc.filter(f => f.e === sel.n && f.g === +g).length + 1, estado = now <= new Date(sel.limite) ? "A tiempo" : now <= new Date(sel.prorroga) ? "Con prórroga" : "Tardía";
+    const nombre = `G${String(g).padStart(2,"0")} · ${proyecto} · Entrega ${sel.n} · v${version}.zip`;
+    loc.push({ fecha: now.toISOString(), e: sel.n, g: +g, caso: CASOS[g-1], proyecto, integrantes: meta.integrantes, responsable: meta.responsable, repo, original: archivo.name, archivo: nombre, url: "", kb: Math.round(archivo.size/1024), checklist: checks.length + "/" + meta.totalChecks, estado, version, comentario: meta.comentario });
+    ls.set("local", JSON.stringify(loc)); res = { ok:true, archivo:nombre, version, estado, fecha: now };
+  } else {
+    meta.datos = await leerB64(archivo);
+    btn.textContent = "Subiendo… 0 %"; $("#upbar").hidden = false;
+    res = await subir(JSON.stringify(meta), p => { $("#upfill").style.width = Math.round(p*100) + "%"; btn.textContent = p < 1 ? "Subiendo… " + Math.round(p*100) + " %" : "Guardando en Drive…" });
+    $("#upbar").hidden = true; $("#upfill").style.width = "0";
+  }
+  btn.disabled = false; btn.textContent = "Enviar entrega";
+  if (!res.ok) { err.textContent = res.error || "No se pudo enviar."; err.hidden = false; return }
+  $("#dPill").className = "pill " + (res.estado === "A tiempo" ? "ok" : res.estado === "Con prórroga" ? "pro" : "late"); $("#dPill").textContent = res.estado + " · versión " + res.version;
+  $("#receipt").innerHTML = [["Entrega", `${sel.n} · ${sel.tema}`], ["Grupo", `${g} · ${CASOS[g-1]}`], ["Proyecto", proyecto], ["Archivo guardado", res.archivo], ["Fecha", fmt(res.fecha)], ["Lista", `${checks.length} puntos marcados`], ["Subido por", meta.responsable]].map(([a,b]) => `<dt>${esc(a)}</dt><dd>${esc(b)}</dd>`).join("");
+  $("#form").hidden = true; $("#done").hidden = false; window.scrollTo({ top: 0, behavior: "smooth" });
+  archivo = null; $("#file").value = ""; validarArchivo(); cargarPublico();
+});
+$("#again").onclick = () => { $("#done").hidden = true; $("#form").hidden = false };
+
+/* Tablero público */
+async function cargarPublico(){
+  try {
+    if (!ENDPOINT) publico = JSON.parse(ls.get("local") || "[]").map(f => ({ e:f.e, g:f.g, estado:f.estado, fecha:f.fecha, version:f.version }));
+    else { const r = await fetch(ENDPOINT + "?a=publico&_=" + Date.now()); publico = (await r.json()).publico || [] }
+  } catch(e) { publico = [] }
+  pintarPublico(); pintarTimeline();
+}
+function pintarPublico(){
+  $("#pubTitle").textContent = "Entrega " + sel.n;
+  $("#pub").innerHTML = CASOS.map((c,i) => {
+    const f = publico.filter(p => p.e === sel.n && p.g === i+1).sort((a,b) => b.version - a.version)[0];
+    const cls = f ? (f.estado === "A tiempo" ? "ok" : f.estado === "Con prórroga" ? "pro" : "late") : "";
+    const sym = f ? (f.estado === "A tiempo" ? "✓" : f.estado === "Con prórroga" ? "prórroga" : "tardía") : "—";
+    return `<div class="gchip ${cls}" title="${esc(c)}">G${i+1}<br>${sym}</div>`;
+  }).join("");
+  $("#pubNote").textContent = "Verde: a tiempo · Azul: con prórroga · Ámbar: tardía · Gris: todavía no entrega.";
+}
+setInterval(() => { const c = $("#cd"); if (c) c.textContent = cuentaAtras() }, 30000);
+
+/* ---------- Docente ---------- */
+let H = null, filas = [], verCelda = null;
+async function sha256(t){ const b = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(t)); return [...new Uint8Array(b)].map(x => x.toString(16).padStart(2,"0")).join("") }
+$("#login").addEventListener("submit", async e => {
+  e.preventDefault();
+  if (await sha256($("#user").value.trim() + ":" + $("#pass").value) !== HUELLA) { $("#loginErr").textContent = "Usuario o contraseña incorrectos."; $("#loginErr").hidden = false; return }
+  H = HUELLA; $("#pass").value = ""; $("#loginErr").hidden = true; try { sessionStorage.setItem(K+"h", H) } catch(_) {}
+  entrar();
+});
+function entrar(){ $("#login").hidden = true; $("#dash").hidden = false; cargarDocente() }
+$("#logout").onclick = () => { H = null; try { sessionStorage.removeItem(K+"h") } catch(_) {} $("#dash").hidden = true; $("#login").hidden = false };
+$("#refresh").onclick = () => cargarDocente();
+async function cargarDocente(){
+  $("#srcNote").textContent = "Cargando…";
+  try {
+    if (!ENDPOINT) { filas = JSON.parse(ls.get("local") || "[]"); $("#srcNote").textContent = "Modo de prueba: solo se ven las entregas registradas en este navegador." }
+    else {
+      const r = await fetch(ENDPOINT + "?a=datos&h=" + encodeURIComponent(H) + "&_=" + Date.now()), j = await r.json();
+      if (!j.ok) throw 0; filas = j.filas; if (j.drive) { $("#driveLink").href = j.drive; $("#driveLink").hidden = false }
+      $("#srcNote").textContent = "Datos de la hoja de Google · actualizado " + new Date().toLocaleTimeString("es-EC", { hour:"2-digit", minute:"2-digit" });
+    }
+  } catch(e) { filas = []; $("#srcNote").textContent = "No se pudieron leer las entregas. Revise ENDPOINT y que la aplicación web esté disponible para «Cualquier persona»." }
+  pintarDocente();
+}
+function ultima(e, g){ return filas.filter(f => +f.e === e && +f.g === g).sort((a,b) => b.version - a.version)[0] }
+function pintarDocente(){
+  const now = new Date();
+  $("#stats").innerHTML = ENTREGAS.map(e => { const n = CASOS.filter((_,i) => ultima(e.n, i+1)).length; return `<div class="stat e${e.n}"><b>${n}/11</b><span>Entrega ${e.n} · ${esc(e.fecha.replace(/^lunes /,""))}</span></div>` }).join("");
+  $("#mtx").innerHTML = `<tr><th>Grupo</th>${ENTREGAS.map(e => `<th class="e${e.n}">Entrega ${e.n}<br><span style="font-weight:500;text-transform:none;letter-spacing:0">${esc(e.fecha.replace(/^lunes /,""))}</span></th>`).join("")}</tr>` +
+    CASOS.map((c,i) => `<tr><td><b>G${i+1}</b> <span class="muted small">${esc(c)}</span>${(() => { const p = filas.filter(f => +f.g === i+1).slice(-1)[0]; return p ? `<br><span class="small">${esc(p.proyecto)}</span>` : "" })()}</td>${ENTREGAS.map(e => {
+      const f = ultima(e.n, i+1), venc = now > new Date(e.prorroga);
+      if (!f) return `<td><span class="cell ${venc ? "miss" : "none"}"><b>${venc ? "Sin entrega" : "—"}</b>${venc ? "venció" : "pendiente"}</span></td>`;
+      const cls = f.estado === "A tiempo" ? "ok" : f.estado === "Con prórroga" ? "pro" : "late";
+      const lbl = f.estado === "A tiempo" ? "✓ A tiempo" : f.estado === "Con prórroga" ? "Prórroga" : "Tardía";
+      return `<td><button type="button" class="cell ${cls}" data-e="${e.n}" data-g="${i+1}"><b>${lbl}</b>${esc(fmt(f.fecha))}${f.version > 1 ? " · v" + f.version : ""}<span>Lista ${esc(f.checklist)}</span></button></td>`;
+    }).join("")}</tr>`).join("");
+  if (verCelda) detalle(verCelda.e, verCelda.g);
+}
+$("#mtx").addEventListener("click", e => { const b = e.target.closest("button.cell"); if (!b) return; verCelda = { e:+b.dataset.e, g:+b.dataset.g }; detalle(verCelda.e, verCelda.g) });
+function detalle(e, g){
+  const vs = filas.filter(f => +f.e === e && +f.g === g).sort((a,b) => b.version - a.version), f = vs[0], d = $("#detail");
+  if (!f) { d.hidden = true; return }
+  d.hidden = false; d.style.setProperty("--wc", WC(e));
+  d.innerHTML = `<h3>G${g} · ${esc(f.proyecto)} · Entrega ${e}</h3>
+    <span><b>Caso:</b> ${esc(CASOS[g-1])}</span><span><b>Integrantes:</b> ${esc(f.integrantes)}</span>
+    <span><b>Repositorio:</b> ${/^https:\/\/github\.com\//.test(f.repo) ? `<a href="${esc(f.repo)}" target="_blank" rel="noopener">${esc(f.repo)}</a>` : esc(f.repo)}</span>
+    ${f.comentario ? `<span><b>Comentario:</b> ${esc(f.comentario)}</span>` : ""}
+    <div class="vers">${vs.map(v => `<div><b>v${v.version}</b><span class="pill ${v.estado === "A tiempo" ? "ok" : v.estado === "Con prórroga" ? "pro" : "late"}">${esc(v.estado)}</span><span>${esc(fmt(v.fecha))}</span><span class="muted">${esc(v.responsable)} · ${esc(v.kb)} KB · lista ${esc(v.checklist)}</span>${v.url && /^https:\/\/(drive|docs)\.google\.com\//.test(v.url) ? `<a href="${esc(v.url)}" target="_blank" rel="noopener">Abrir .zip en Drive</a>` : `<span class="muted">${esc(v.archivo)}</span>`}</div>`).join("")}</div>`;
+}
+$("#csv").onclick = async () => {
+  const q = s => '"' + String(s ?? "").replace(/"/g,'""') + '"';
+  const txt = ["fecha,entrega,grupo,caso,proyecto,integrantes,responsable,repositorio,archivo,url,kb,checklist,estado,version,comentario"].concat(filas.map(f => [q(fmt(f.fecha)), f.e, f.g, q(f.caso), q(f.proyecto), q(f.integrantes), q(f.responsable), q(f.repo), q(f.archivo), q(f.url), f.kb, q(f.checklist), q(f.estado), f.version, q(f.comentario)].join(","))).join("\n");
+  try { await navigator.clipboard.writeText(txt); toast("CSV copiado: péguelo en Excel o Sheets") } catch(e) { toast("No se pudo copiar el CSV") }
+};
+$("#gasView").textContent = $("#gas-code").textContent.trim();
+$("#cfgState").textContent = ENDPOINT ? "Conectado a: " + ENDPOINT : "Sin conexión configurada (ENDPOINT vacío): modo de prueba.";
+$("#copyGas").onclick = async () => { try { await navigator.clipboard.writeText($("#gas-code").textContent.trim()); toast("Código copiado") } catch(e) { toast("Seleccione el código y cópielo con Ctrl+C") } };
+try { if (sessionStorage.getItem(K+"h") === HUELLA) { H = HUELLA; entrar() } } catch(_) {}
+
+pintarEntrega(); cargarPublico();
+</script>
+</body>
+</html>
