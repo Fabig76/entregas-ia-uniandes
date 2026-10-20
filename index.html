@@ -328,6 +328,9 @@ function filas_() {
   return v.map(r => ({ fecha: r[0], e: +r[1], g: +r[2], caso: r[3], proyecto: r[4], integrantes: r[5], responsable: r[6], repo: r[7], original: r[8], archivo: r[9], url: r[10], kb: r[12], checklist: r[13], estado: r[14], version: +r[15], comentario: r[16] }));
 }
 function doGet(e) {
+  try { return doGet_(e); } catch (x) { console.error(x); return salida_({ ok: false, error: 'Error en el servidor: ' + (x && x.message ? x.message : x) }); }
+}
+function doGet_(e) {
   const p = e.parameter || {};
   if (p.a === 'datos') {
     if (p.h !== HUELLA_DOCENTE) return salida_({ ok: false, error: 'acceso' });
@@ -337,6 +340,9 @@ function doGet(e) {
   return salida_({ ok: true, publico: filas_().map(f => ({ e: f.e, g: f.g, estado: f.estado, fecha: f.fecha, version: f.version })) });
 }
 function doPost(e) {
+  try { return doPost_(e); } catch (x) { console.error(x); return salida_({ ok: false, error: 'Error en el servidor: ' + (x && x.message ? x.message : x) }); }
+}
+function doPost_(e) {
   let d; try { d = JSON.parse(e.postData.contents); } catch (x) { return salida_({ ok: false, error: 'Formato inválido.' }); }
   const ent = ENTREGAS.filter(x => x.n === +d.entrega)[0];
   const g = parseInt(d.grupo, 10);
@@ -551,7 +557,7 @@ function subir(body, onProg, onReintento){
       const x = new XMLHttpRequest(); x.open("POST", ENDPOINT); x.setRequestHeader("Content-Type", "text/plain;charset=utf-8");
       x.upload.onprogress = e => { if (e.lengthComputable && onProg) onProg(e.loaded/e.total) };
       x.onload = () => { try { resolve(JSON.parse(x.responseText)) } catch(e) { resolve({ ok:false, error:"Respuesta inesperada del servidor. Intenten otra vez." }) } };
-      x.onerror = () => { if (n < INTENTOS) setTimeout(() => intenta(n+1), n * 1500); else resolve({ ok:false, error:"No se pudo conectar con el servidor de Google. Revisen su conexión: si usan VPN, desactívenla; si están en la red del campus, prueben con datos móviles. Luego vuelvan a intentar." }) };
+      x.onerror = () => { if (n < INTENTOS) setTimeout(() => intenta(n+1), n * 1500); else resolve({ ok:false, error:"No se pudo conectar con el servidor de Google después de varios intentos. Revisen su conexión (¿VPN activa? ¿red del campus con bloqueos?) y prueben con datos móviles. Si sigue fallando, envíen una captura al docente." }) };
       x.timeout = 300000; x.ontimeout = () => { if (n < INTENTOS) setTimeout(() => intenta(n+1), n * 1500); else resolve({ ok:false, error:"La subida tardó demasiado. Revisen su conexión." }) };
       x.send(body);
     };
