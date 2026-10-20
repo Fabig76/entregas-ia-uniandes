@@ -366,7 +366,7 @@ function doPost(e) {
     archivo.setDescription('Grupo ' + g + ' (' + CASOS[g - 1] + ') · ' + proyecto + ' · ' + estado + ' · subido por ' + limpio_(d.responsable, 80) + ' · repo ' + d.repo);
     hoja_().appendRow([ahora, ent.n, g, CASOS[g - 1], proyecto, limpio_(d.integrantes, 200), limpio_(d.responsable, 80), limpio_(d.repo, 200),
       limpio_(d.nombreArchivo, 120), nombre, archivo.getUrl(), archivo.getId(), Math.round(bytes.length / 1024),
-      d.checks.length + '/' + (+d.totalChecks || d.checks.length), estado, version, limpio_(d.comentario, 600)]);
+      d.checks.length + ' de ' + (+d.totalChecks || d.checks.length), estado, version, limpio_(d.comentario, 600)]);
     return salida_({ ok: true, archivo: nombre, version: version, estado: estado, fecha: ahora });
   } finally { lock.releaseLock(); }
 }
@@ -569,7 +569,7 @@ $("#form").addEventListener("submit", async e => {
     const loc = JSON.parse(ls.get("local") || "[]"), now = new Date();
     const version = loc.filter(f => f.e === sel.n && f.g === +g).length + 1, estado = now <= new Date(sel.limite) ? "A tiempo" : now <= new Date(sel.prorroga) ? "Con prórroga" : "Tardía";
     const nombre = `G${String(g).padStart(2,"0")} · ${proyecto} · Entrega ${sel.n} · v${version}.zip`;
-    loc.push({ fecha: now.toISOString(), e: sel.n, g: +g, caso: CASOS[g-1], proyecto, integrantes: meta.integrantes, responsable: meta.responsable, repo, original: archivo.name, archivo: nombre, url: "", kb: Math.round(archivo.size/1024), checklist: checks.length + "/" + meta.totalChecks, estado, version, comentario: meta.comentario });
+    loc.push({ fecha: now.toISOString(), e: sel.n, g: +g, caso: CASOS[g-1], proyecto, integrantes: meta.integrantes, responsable: meta.responsable, repo, original: archivo.name, archivo: nombre, url: "", kb: Math.round(archivo.size/1024), checklist: checks.length + " de " + meta.totalChecks, estado, version, comentario: meta.comentario });
     ls.set("local", JSON.stringify(loc)); res = { ok:true, archivo:nombre, version, estado, fecha: now };
   } else {
     meta.datos = await leerB64(archivo);
