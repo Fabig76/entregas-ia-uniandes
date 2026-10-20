@@ -549,20 +549,35 @@ function validarArchivo(){
 $("#modeNote").textContent = ENDPOINT ? "El archivo se guarda en la carpeta de Google Drive del docente." : "Modo de prueba: sin conexión configurada, solo se registra en este navegador (el archivo no se sube).";
 
 function leerB64(f){ return new Promise((ok, no) => { const r = new FileReader(); r.onload = () => ok(String(r.result).split(",")[1]); r.onerror = no; r.readAsDataURL(f) }) }
-function subir(body, onProg, onReintento){
+// IMPORTANTE: no registrar x.upload.onprogress. Un listener de subida convierte la petición en
+// "no simple" y el navegador envía antes un OPTIONS (preflight CORS) que Apps Script responde con 405
+// sin cabeceras CORS: el navegador lo reporta como error de red. Sin ese listener, la petición es simple.
+async function versiones(e, g){
+  try { const r = await fetch(ENDPOINT + "?a=publico&_=" + Date.now()); const j = await r.json();
+        return (j.publico || []).filter(f => +f.e === +e && +f.g === +g).reduce((m, f) => Math.max(m, +f.version || 0), 0) } catch(x) { return null }
+}
+function enviar_(body){
   return new Promise(resolve => {
-    const INTENTOS = 3;
-    const intenta = n => {
-      if (n > 1 && onReintento) onReintento(n, INTENTOS);
-      const x = new XMLHttpRequest(); x.open("POST", ENDPOINT); x.setRequestHeader("Content-Type", "text/plain;charset=utf-8");
-      x.upload.onprogress = e => { if (e.lengthComputable && onProg) onProg(e.loaded/e.total) };
-      x.onload = () => { try { resolve(JSON.parse(x.responseText)) } catch(e) { resolve({ ok:false, error:"Respuesta inesperada del servidor. Intenten otra vez." }) } };
-      x.onerror = () => { if (n < INTENTOS) setTimeout(() => intenta(n+1), n * 1500); else resolve({ ok:false, error:"No se pudo conectar con el servidor de Google después de varios intentos. Revisen su conexión (¿VPN activa? ¿red del campus con bloqueos?) y prueben con datos móviles. Si sigue fallando, envíen una captura al docente." }) };
-      x.timeout = 300000; x.ontimeout = () => { if (n < INTENTOS) setTimeout(() => intenta(n+1), n * 1500); else resolve({ ok:false, error:"La subida tardó demasiado. Revisen su conexión." }) };
-      x.send(body);
-    };
-    intenta(1);
+    const x = new XMLHttpRequest(); x.open("POST", ENDPOINT); x.setRequestHeader("Content-Type", "text/plain;charset=utf-8");
+    x.onload = () => { try { resolve(JSON.parse(x.responseText)) } catch(e) { resolve({ ok:false, red:true, error:"Respuesta inesperada del servidor." }) } };
+    x.onerror = () => resolve({ ok:false, red:true, error:"red" });
+    x.timeout = 300000; x.ontimeout = () => resolve({ ok:false, red:true, error:"tiempo" });
+    x.send(body);
   });
+}
+async function subir(body, onProg, onReintento){
+  const m = JSON.parse(body), INTENTOS = 3, antes = await versiones(m.entrega, m.grupo);
+  for (let n = 1; n <= INTENTOS; n++) {
+    if (n > 1 && onReintento) onReintento(n, INTENTOS);
+    if (onProg) onProg(null);
+    const r = await enviar_(body);
+    if (!r.red) return r;
+    // ¿Se guardó aunque la respuesta se perdió? Así se evitan entregas duplicadas.
+    const ahora = await versiones(m.entrega, m.grupo);
+    if (antes !== null && ahora !== null && ahora > antes) return { ok:true, archivo:"(guardado en Drive)", version:ahora, estado:"Recibida", fecha:new Date() };
+    if (n < INTENTOS) await new Promise(ok => setTimeout(ok, n * 2000));
+  }
+  return { ok:false, error:"No se pudo conectar con el servidor de Google. Revisen su conexión (¿VPN activa? ¿red con bloqueos?) y prueben con datos móviles. Si sigue fallando, envíen una captura al docente." };
 }
 $("#form").addEventListener("submit", async e => {
   e.preventDefault();
@@ -585,7 +600,7 @@ $("#form").addEventListener("submit", async e => {
   } else {
     meta.datos = await leerB64(archivo);
     btn.textContent = "Subiendo… 0 %"; $("#upbar").hidden = false;
-    res = await subir(JSON.stringify(meta), p => { $("#upfill").style.width = Math.round(p*100) + "%"; btn.textContent = p < 1 ? "Subiendo… " + Math.round(p*100) + " %" : "Guardando en Drive…" }, (n, t) => { $("#upfill").style.width = "0"; btn.textContent = "Conexión inestable · reintentando (" + n + "/" + t + ")…" });
+    res = await subir(JSON.stringify(meta), () => { $("#upfill").style.width = "100%"; btn.textContent = "Subiendo y guardando en Drive… (puede tardar hasta un minuto)" }, (n, t) => { $("#upfill").style.width = "0"; btn.textContent = "Conexión inestable · reintentando (" + n + "/" + t + ")…" });
     $("#upbar").hidden = true; $("#upfill").style.width = "0";
   }
   btn.disabled = false; btn.textContent = "Enviar entrega";
