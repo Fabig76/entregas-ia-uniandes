@@ -1,0 +1,633 @@
+<!doctype html>
+<html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Laboratorio de Frontend</title>
+<style>
+:root{--bg:#F3F2FA;--panel:#FFFFFF;--ink:#1B1C3A;--muted:#5E5C7A;--line:#DDD9F0;--soft:#EDEAF8;--acc:#C7265E;--acc2:#4F46C8;--cor:#C7265E;--b1:#4F46C8;--b2:#C7265E;--b3:#8A7FE8;--ok:#1D7A35;--ok-s:#E8F7EC;--bad:#C4231A;--bad-s:#FDECEC;--warn:#8A5A00;--warn-s:#FFF6E0;--term:#1E2142;--term-ink:#F4F2FC;--glass:rgba(243,242,250,.8);--shadow:0 1px 2px rgba(0,0,0,.04),0 8px 24px rgba(0,0,0,.06);
+--fd:-apple-system,BlinkMacSystemFont,"SF Pro Display","Helvetica Neue",Helvetica,Arial,sans-serif;--fb:-apple-system,BlinkMacSystemFont,"SF Pro Text","Helvetica Neue",Helvetica,Arial,sans-serif;--fm:ui-monospace,"SF Mono",Menlo,Consolas,monospace}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0E1030;--panel:#1B1E45;--ink:#F4F2FC;--muted:#A6A3C8;--line:#363A6E;--soft:#272B58;--acc:#F0628F;--acc2:#B9B4FF;--cor:#F0628F;--b1:#8F8BC9;--b2:#F0628F;--b3:#B9B4FF;--ok:#30D158;--ok-s:#0F2A17;--bad:#FF6961;--bad-s:#3A1414;--warn:#FFD60A;--warn-s:#332B0A;--term:#12143A;--glass:rgba(14,16,48,.8);--shadow:none;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#0E1030;--panel:#1B1E45;--ink:#F4F2FC;--muted:#A6A3C8;--line:#363A6E;--soft:#272B58;--acc:#F0628F;--acc2:#B9B4FF;--cor:#F0628F;--b1:#8F8BC9;--b2:#F0628F;--b3:#B9B4FF;--ok:#30D158;--ok-s:#0F2A17;--bad:#FF6961;--bad-s:#3A1414;--warn:#FFD60A;--warn-s:#332B0A;--term:#12143A;--glass:rgba(14,16,48,.8);--shadow:none;color-scheme:dark}
+*{box-sizing:border-box}[hidden]{display:none!important}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 var(--fb);-webkit-font-smoothing:antialiased;letter-spacing:-.01em}
+button,select,input{font:inherit;color:inherit}
+button{cursor:pointer}
+code{font:13.5px var(--fm);background:var(--soft);border-radius:6px;padding:1px 6px}
+:focus-visible{outline:3px solid var(--acc2);outline-offset:2px}
+.wrap{max-width:1120px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+header::before{content:"";display:block;height:5px;background:linear-gradient(90deg,var(--b1),var(--b2),var(--b3))}
+header{position:sticky;top:0;z-index:5;background:var(--glass);backdrop-filter:saturate(180%) blur(20px);-webkit-backdrop-filter:saturate(180%) blur(20px);border-bottom:1px solid var(--line)}
+.top{display:flex;justify-content:space-between;align-items:center;gap:14px;flex-wrap:wrap;padding-block:14px 10px}
+.top small{display:block;font-size:12px;font-weight:600;color:var(--muted);margin-bottom:2px}
+.top h1{margin:0;font:600 21px/1.2 var(--fd);letter-spacing:-.02em}
+.prog{display:flex;align-items:center;gap:10px;font-size:13px;color:var(--muted)}
+.prog .bar{width:140px;height:6px;border-radius:9px;background:var(--line);overflow:hidden}
+.prog .bar i{display:block;height:100%;background:linear-gradient(90deg,var(--b1),var(--b2));width:0;transition:width .4s}
+nav{display:flex;gap:2px;overflow-x:auto;padding:4px;margin-bottom:10px;background:var(--soft);border-radius:12px;width:max-content;max-width:100%}
+nav button{border:0;background:transparent;color:var(--ink);padding:7px 12px;border-radius:9px;font-weight:500;white-space:nowrap;font-size:13.5px}
+nav button[aria-selected="true"]{background:var(--panel);box-shadow:inset 0 0 0 2px var(--b2);font-weight:600;color:var(--acc2)}
+nav button .d{display:inline-grid;place-items:center;width:18px;height:18px;border-radius:50%;background:var(--line);font-size:10.5px;font-weight:700;margin-right:6px}
+nav button.hecho .d{background:var(--ok);color:#fff}
+main{padding-block:28px 60px}
+.intro{display:grid;grid-template-columns:1.4fr 1fr;gap:20px;margin-bottom:16px;align-items:start}
+.intro>*{min-width:0}
+.intro h2{margin:0 0 6px;font:700 clamp(26px,3.4vw,36px)/1.1 var(--fd);letter-spacing:-.03em}
+.intro p{margin:0;color:var(--muted);font-size:17px}
+.tarea{background:var(--panel);border-radius:18px;padding:16px 18px;box-shadow:var(--shadow);border:2px solid var(--b2)}
+.tarea b{display:block;font-size:12px;font-weight:600;color:var(--b2);margin-bottom:4px}
+.tarea ol{margin:0;padding-left:20px;font-size:15px}
+.tarea li{margin:3px 0}
+.tag{font-size:12.5px;font-weight:600;color:var(--acc2);display:inline-block;margin-bottom:6px}
+.simple{background:var(--panel);border:2px solid var(--b3);border-left:6px solid var(--b3);border-radius:16px;padding:14px 18px;margin-bottom:20px}
+.simple>b{color:var(--acc2);font-size:12.5px;display:block;margin-bottom:4px}
+.simple p{margin:0;font-size:15.5px}
+.simple dl{margin:12px 0 0;display:grid;grid-template-columns:auto 1fr;gap:5px 14px;font-size:14.5px;border-top:1px solid var(--line);padding-top:10px}
+.simple dt{font-weight:600}
+.simple dd{margin:0;color:var(--muted)}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+.grid2>*{min-width:0}
+.card{background:var(--panel);border-radius:20px;padding:20px;box-shadow:var(--shadow);border:2px solid var(--b1)}
+.grid2>.card:nth-child(2n){border-color:var(--b2)}
+.mods>.card:nth-child(3n+2){border-color:var(--b2)}
+.mods>.card:nth-child(3n){border-color:var(--b3)}
+.pasos3>.card:nth-child(2){border-color:var(--b2)}
+.pasos3>.card:nth-child(3){border-color:var(--b3)}
+.gloss{border-color:var(--b3)!important}
+.card h3{margin:0 0 12px;font:600 18px var(--fd);letter-spacing:-.01em}
+.lbl{font-size:12px;font-weight:600;color:var(--muted);margin:0 0 6px}
+.term{background:var(--term);color:var(--term-ink);border-radius:14px;padding:14px;font:13px/1.6 var(--fm);white-space:pre-wrap;word-break:break-word;min-height:80px;overflow:auto;max-height:440px}
+.term .k{color:#64D2FF}.term .s{color:#FFD60A}.term .e{color:#FF6961}.term .m{color:#A1A1A6}.term .sep{background:#0A84FF;color:#fff;border-radius:4px;padding:0 3px}
+.fb{border-radius:12px;padding:10px 14px;font-size:15px;margin-top:10px}
+.fb.ok{background:var(--ok-s);color:var(--ok)}.fb.bad{background:var(--bad-s);color:var(--bad)}.fb.warn{background:var(--warn-s);color:var(--warn)}
+.fb b{color:inherit}
+.btn{border:0;border-radius:980px;padding:9px 18px;font-weight:500;background:var(--acc);color:#fff;font-size:15px}
+.btn:hover{filter:brightness(1.08)}
+.btn:disabled{opacity:.35;cursor:default}
+.btn.g{background:var(--soft);color:var(--ink)}
+.btn.c{background:var(--cor);color:#fff}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.item{display:grid;grid-template-columns:1fr auto;gap:10px;align-items:center;border:1px solid var(--line);border-radius:14px;padding:10px 12px;background:var(--panel)}
+.item+.item{margin-top:8px}
+.item.col1{grid-template-columns:1fr}
+.seg{display:inline-flex;flex-wrap:wrap;background:var(--soft);border-radius:10px;padding:3px;gap:2px}
+.seg button{border:0;background:transparent;padding:6px 10px;font-size:13px;font-weight:500;border-radius:8px}
+.seg button[aria-pressed="true"]{background:var(--panel);box-shadow:0 1px 3px rgba(0,0,0,.14);font-weight:600;color:var(--acc)}
+.item.ok{border-color:var(--ok);background:var(--ok-s)}.item.bad{border-color:var(--bad);background:var(--bad-s)}
+.item small{display:block;color:var(--muted);font-size:13.5px}
+.item.ok small,.item.bad small{color:inherit}
+select,input[type=text]{border:1px solid var(--line);background:var(--panel);border-radius:10px;padding:7px 10px;max-width:100%}
+.kv{display:grid;grid-template-columns:auto 1fr;gap:4px 12px;font-size:15px;align-items:baseline}
+.big{font:700 32px/1.1 var(--fd);letter-spacing:-.02em}
+.mini{border:2px solid var(--b1);border-radius:18px;overflow:hidden;background:var(--panel)}
+.mini .barra{background:var(--soft);padding:7px 12px;font-size:12px;color:var(--muted);border-bottom:1px solid var(--line);display:flex;gap:6px;align-items:center}
+.mini .barra i{width:9px;height:9px;border-radius:50%;background:var(--line);display:inline-block}
+.mini .cuerpo{padding:14px}
+.chat{display:grid;gap:8px;align-content:start;min-height:120px}
+.globo{background:var(--soft);border-radius:18px;padding:10px 14px;white-space:pre-wrap;font-size:15px;max-width:88%;justify-self:start}
+.globo.u{background:var(--acc2);color:#fff;justify-self:end}
+.cur::after{content:"▍";animation:p 1s steps(1) infinite;color:var(--acc2)}
+@keyframes p{50%{opacity:0}}
+.banner{border-radius:12px;padding:10px 14px;font-size:14.5px;margin-top:8px}
+.banner.calm{background:var(--soft)}
+.banner.warn{background:var(--warn-s);color:var(--warn)}
+.banner.bad{background:var(--bad-s);color:var(--bad)}
+.entrada{display:flex;gap:8px;margin-top:10px}
+.entrada input{flex:1;min-width:0}
+.log{white-space:pre-wrap;font:12.5px/1.55 var(--fm);max-height:260px;overflow:auto;background:var(--term);color:var(--term-ink);border-radius:12px;padding:10px}
+.log .ok{color:#30D158}.log .e{color:#FF6961}
+.final{text-align:center;padding:30px 16px}
+footer{color:var(--muted);font-size:13px;padding-block:10px 40px;text-align:center}
+.hero{text-align:center;padding:30px 0 10px}
+.hero .ey{font-size:15px;font-weight:600;color:var(--acc2)}
+.hero h2{font:700 clamp(34px,6vw,56px)/1.05 var(--fd);letter-spacing:-.035em;margin:6px auto 12px;max-width:16ch}
+.hero p{font-size:clamp(17px,2.2vw,21px);color:var(--muted);max-width:40em;margin:0 auto}
+.pasos3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;margin:30px 0}
+.pasos3 .card{text-align:left}
+.pasos3 .n{width:30px;height:30px;border-radius:50%;background:var(--acc2);color:#fff;display:grid;place-items:center;font-weight:700;margin-bottom:10px}
+.gloss dl{margin:0;display:grid;grid-template-columns:auto 1fr;gap:7px 16px;font-size:15px;text-align:left}
+.gloss dt{font-weight:600}
+.gloss dd{margin:0;color:var(--muted)}
+.mods{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+.mod{display:grid;gap:8px;align-content:start}
+.mod .cab{display:flex;align-items:center;gap:10px}
+.mod .num{width:34px;height:34px;border-radius:10px;background:var(--soft);color:var(--acc2);display:grid;place-items:center;font-weight:700;flex:none}
+.mod.hecho .num{background:var(--ok);color:#fff}
+.mod h3{margin:0}
+.mod dl{margin:0;display:grid;grid-template-columns:auto 1fr;gap:4px 10px;font-size:14.5px}
+.mod dt{font-weight:600;color:var(--muted)}
+.mod dd{margin:0}
+.centro{text-align:center;margin-top:24px}
+@media (max-width:860px){.intro,.grid2,.mods,.pasos3{grid-template-columns:1fr}.term{max-height:none}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style></head><body>
+<header><div class="wrap">
+ <div class="top"><div><small>Módulo 2 · Clase 4 · Desarrollo Frontend · UNIANDES</small><h1>Laboratorio de Frontend</h1></div>
+ <div class="prog"><button class="btn g" type="button" id="gch" style="padding:4px 12px;font-size:13px">Grupo —</button><span id="progT">0 de 8 retos</span><span class="bar"><i id="progB"></i></span></div></div>
+ <nav id="tabs" role="tablist" aria-label="Retos"></nav>
+</div></header>
+<main class="wrap" id="main"></main>
+<footer class="wrap">Todo funciona en su navegador, con el backend y el modelo simulados: no gasta cupo, no necesita clave y equivocarse no cuesta nada. Lo que aprenden aquí lo aplican después en su proyecto.</footer>
+<script>
+const $ = s => document.querySelector(s);
+const esc = s => String(s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const ST = { get(k,d){ try { const v = localStorage.getItem("lab-c4:"+k); return v === null ? d : JSON.parse(v) } catch(e){ return d } },
+  set(k,v){ try { localStorage.setItem("lab-c4:"+k, JSON.stringify(v)) } catch(e){}
+    /* Cada reto guarda su respuesta con ST.set, asi que este es el punto comun
+       para que la barra de envio muestre el puntaje al instante. */
+    try { refrescarPuntaje() } catch(e){} } };
+/* ====== CONFIGURACIÓN DEL ENVÍO (GitHub Pages + Google Apps Script) ====== */
+const ENDPOINT = "https://script.google.com/macros/s/AKfycbxg2vmYGpr6nbOlD0wTdWxqK10bdT5lxDwdGS93OFU6sqwKCfrB_qtgmZFGS-Sc78Vv5w/exec"; // termina en /exec
+const MAX_INTENTOS = 2;
+const envios = ST.get("envios", {});            // {reto: [{intento, p, d}]}
+const cerrados = new Set(ST.get("cerrados", [])); // retos sin intentos restantes
+const RETO_NOMBRE = {estados:"Estados",contrato:"Contrato",parser:"Parser SSE",detener:"Detener",errores:"Errores",renderizado:"Renderizado",secretos:"Secretos",accesibilidad:"Accesibilidad"};
+async function sha256(t){const b=await crypto.subtle.digest("SHA-256",new TextEncoder().encode(t));return [...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,"0")).join("")}
+async function llamar(cuerpo){const r=await fetch(ENDPOINT,{method:"POST",body:JSON.stringify(cuerpo)});return r.json()}
+function puntajeReto(id){
+  const pct=(a,b)=>Math.round(100*a/b);
+  if(id==="estados"){const v=ST.get("estados",{});const ok=["inactiva","enviando","recibiendo","completa","reintentar","caido"];const n=ok.filter((z,i)=>v[i]===z).length;return{p:pct(n,6),d:n+"/6 escenas"}}
+  if(id==="contrato"){const v=ST.get("contrato",{});const ok=["A","B","B","A"];const n=ok.filter((z,i)=>v[i]===z).length;return{p:pct(n,4),d:n+"/4 preguntas"}}
+  if(id==="parser"){const v=ST.get("parser",{paso:0,resp:{}});const ok=[0,1,2];const n=ok.filter((z,i)=>v.resp[i]===z).length;return{p:pct(n,3),d:n+"/3 trozos"}}
+  if(id==="detener"){const v=ST.get("detener",{logrado:false,mejor:null});return{p:v.logrado?100:0,d:v.logrado?("detuvo en "+v.mejor+" tokens"):"sin detener antes de 150"}}
+  if(id==="errores"){const v=ST.get("errores",{});const ok=["A","B","C"];const n=ok.filter((z,i)=>v[i]===z).length;return{p:pct(n,3),d:n+"/3 situaciones"}}
+  if(id==="renderizado"){const v=ST.get("render",{vioT:false,vioH:false,sel:{}});const ok=[true,true,false,false,true];const n=ok.filter((z,i)=>v.sel[i]===z).length;const sims=(v.vioT?1:0)+(v.vioH?1:0);return{p:Math.round(n/5*80+sims*10),d:n+"/5 líneas · "+sims+"/2 simulaciones"}}
+  if(id==="secretos"){const v=ST.get("secretos",{sel:{},busco:false});const ok=["nav","srv","srv","srv","nav","srv"];const n=ok.filter((z,i)=>v.sel[i]===z).length;const limpio=v.busco&&n===6;return{p:Math.round(n/6*80+(limpio?20:0)),d:n+"/6 datos"+(limpio?" · grep limpio":"")}}
+  if(id==="accesibilidad"){const v=ST.get("acc",{okR:false,okE:false});return{p:(v.okR?50:0)+(v.okE?50:0),d:(v.okR?"respuesta ✓":"respuesta ✗")+" · "+(v.okE?"error ✓":"error ✗")}}
+  return{p:0,d:""}
+}
+const hechos = new Set(ST.get("hechos", []));
+let actual = ST.get("actual", -1);
+function marcar(id){ if (!hechos.has(id)) { hechos.add(id); ST.set("hechos", [...hechos]); progreso(); tabs() } }
+function progreso(){ const n = [...hechos].filter(x => RETOS.some(r => r.id === x)).length; $("#progT").textContent = `${n} de ${RETOS.length} retos`; $("#progB").style.width = (100*n/RETOS.length)+"%" }
+const json = o => esc(JSON.stringify(o, null, 2)).replace(/&quot;([^&]+)&quot;:/g, '<span class="k">"$1"</span>:').replace(/: &quot;([^&]*)&quot;/g, ': <span class="s">"$1"</span>');
+
+/* ---- La pantalla simulada de Reseñas de Ambato (se usa en varios retos) ---- */
+function telefono(id, inner){ return `<div class="mini"><div class="barra"><i></i><i></i><i></i> Reseñas de Ambato · el asistente de su producto</div><div class="cuerpo" id="${id}">${inner}</div></div>` }
+function vistaEstado(e){
+  const preg = `<div class="globo u">¿El locro lleva queso?</div>`;
+  const entrada = (texto, deshab, boton) => `<div class="entrada"><input type="text" value="${esc(texto)}" ${deshab?"disabled":""} aria-label="Pregunta"><button class="btn" ${deshab?"disabled":""}>${boton||"Enviar"}</button></div>`;
+  if (e==="inactiva")  return `<div class="chat"><p style="color:var(--muted);font-size:14px;margin:4px">Haz una pregunta sobre los restaurantes de Ambato.</p></div>` + entrada("", false);
+  if (e==="enviando")  return `<div class="chat">${preg}<div class="globo" style="color:var(--muted)">pensando…</div></div>` + entrada("", true);
+  if (e==="recibiendo")return `<div class="chat">${preg}<div class="globo cur">Sí. El locro de la Casa de las</div></div><div class="row" style="margin-top:8px"><button class="btn c" style="padding:5px 14px;font-size:13px">■ Detener</button></div>` + entrada("", true);
+  if (e==="completa")  return `<div class="chat">${preg}<div class="globo">Sí. El locro de la Casa de las Guatitas lleva queso y aguacate.</div></div>` + entrada("", false) + `<p style="font-size:12.5px;color:var(--muted);margin:6px 0 0">El botón vuelve a estar activo y el cursor regresa al campo.</p>`;
+  if (e==="revision")  return `<div class="chat">${preg}</div><div class="banner calm">🕊 Recibimos tu pregunta. Una persona del equipo la revisará y te responderá. No es un error.</div>` + entrada("", false);
+  if (e==="reintentar")return `<div class="chat">${preg}</div><div class="banner warn">⏳ Muchas preguntas seguidas. Reintentamos en <b>6 s</b>… (tu texto no se pierde)</div>` + entrada("¿Y la sopa de morocho?", true, "Enviar");
+  if (e==="caido")     return `<div class="chat">${preg}</div><div class="banner bad">El asistente no está disponible en este momento. Vuelve a intentarlo en unos minutos.</div>` + entrada("¿Y la sopa de morocho?", true);
+  return "";
+}
+
+const RETOS = [
+/* ═══════════ 1 · ESTADOS ═══════════ */
+{ id:"estados", nav:"Estados", dia:"Diapositiva 4", titulo:"Los siete estados de la interfaz",
+  idea:"Un formulario clásico tiene 3 estados (cargando, listo, error). Una interfaz de IA tiene 7, porque el modelo tarda, responde por partes y puede fallar de varias maneras.",
+  tarea:["Lea la escena 1: cuenta algo que acaba de pasar.","Elija en qué estado queda la pantalla.","Mire a la derecha cómo se ve ese estado en la pantalla simulada.","Repita con las 6 escenas. El reto se cumple con las 6 correctas."],
+  simple:"Un «estado» es la foto de la pantalla en un momento dado: qué se ve, qué botón está activo y qué está esperando. La interfaz solo puede estar en UN estado a la vez, como un semáforo solo muestra un color a la vez. Cada cosa que pasa (llega una palabra, llega un error) es un «evento», y un evento mueve la pantalla de un estado a otro.",
+  terms:[["estado","la situación en que está la pantalla: qué se muestra y qué se puede tocar"],["evento","algo que acaba de pasar y que puede cambiar el estado (llegó una palabra, llegó un error…)"],["429 y 503","códigos con que el backend dice «espera un momento» (429) o «estoy caído» (503)"]],
+  render(el){
+    const ESTADOS=[["inactiva","Inactiva"],["enviando","Enviando"],["recibiendo","Recibiendo"],["completa","Completa"],["revision","Revisión humana"],["reintentar","Reintentar"],["caido","Caído"]];
+    const P=[
+      ["Ana abre la página del asistente. Todavía no ha escrito nada.","inactiva","La pantalla espera: campo activo, botón activo, nada más."],
+      ["Ana escribe «¿El locro lleva queso?» y pulsa Enviar. La petición ya salió, pero aún no llega nada.","enviando","La pregunta salió y no hay respuesta todavía: se muestra «pensando…» y el botón se apaga para no enviar dos veces."],
+      ["Llegan las primeras palabras de la respuesta: «Sí. El locro de la…».","recibiendo","Este estado NO existe en un formulario clásico: la respuesta está llegando por partes. El texto crece y aparece el botón Detener."],
+      ["Llega el evento fin: la respuesta está completa.","completa","Solo con el evento fin se vuelve a activar el botón de enviar y el cursor regresa al campo."],
+      ["Ana pregunta otra vez, pero el backend responde 429 con Retry-After: 6.","reintentar","429 significa «muchas solicitudes: espera». La pantalla muestra una cuenta regresiva de 6 s y conserva el texto escrito."],
+      ["Pasan los 6 segundos, se reintenta… y ahora el backend responde 503.","caido","503 significa que ni el proveedor principal ni el de respaldo respondieron. Se dice claro, sin culpar a Ana, y su texto no se borra."]
+    ];
+    const sel=ST.get("estados",{});
+    el.innerHTML=`<div class="grid2"><div class="card"><h3>Las escenas, en orden</h3><div id="e1l"></div><div id="e1fb"></div></div>
+      <div class="card"><h3>Así se ve la pantalla</h3><p class="lbl" id="e1cual">Elija un estado para verlo aquí</p><div id="e1tel">${telefono("e1t", vistaEstado("inactiva"))}</div></div></div>`;
+    let ver=0;
+    const pinta=()=>{
+      $("#e1l").innerHTML=P.map((p,i)=>{const s=sel[i],cls=s?(s===p[1]?"ok":"bad"):"";
+        return `<div class="item col1 ${cls}"><div><b>Escena ${i+1}.</b> ${esc(p[0])}${s?`<small>${s===p[1]?"✓ Correcto. ":"✗ Ese no. Pista: "}${esc(p[2])}</small>`:""}
+        <div class="seg" style="margin-top:8px">${ESTADOS.map(z=>`<button type="button" data-i="${i}" data-z="${z[0]}" aria-pressed="${s===z[0]}">${z[1]}</button>`).join("")}</div></div></div>`}).join("");
+      const mostrado=sel[ver]&&sel[ver]===P[ver][1]?P[ver][1]:(sel[ver]||"inactiva");
+      $("#e1cual").textContent=`Escena ${ver+1} · estado «${(ESTADOS.find(z=>z[0]===mostrado)||ESTADOS[0])[1]}»`;
+      $("#e1tel").innerHTML=telefono("e1t",vistaEstado(mostrado));
+      const bien=P.filter((p,i)=>sel[i]===p[1]).length;
+      $("#e1fb").innerHTML=bien===P.length?`<p class="fb ok"><b>6 de 6.</b> Esta es la máquina de estados de su interfaz. En el código, cada estado es un objeto con un campo <code>tipo</code>, y así los estados imposibles (como «enviando y completa a la vez») ni siquiera se pueden escribir.</p>`:`<p class="fb warn">${bien} de 6 escenas correctas. Siga probando: equivocarse también enseña.</p>`;
+      if(bien===P.length) marcar("estados");
+    };
+    $("#e1l").onclick=e=>{const b=e.target.closest("[data-i]");if(!b)return;sel[b.dataset.i]=b.dataset.z;ver=+b.dataset.i;ST.set("estados",sel);pinta()};
+    pinta();
+  }},
+/* ═══════════ 2 · CONTRATO ═══════════ */
+{ id:"contrato", nav:"Contrato", dia:"Diapositiva 5", titulo:"Leer el contrato y reaccionar bien",
+  idea:"El backend ya definió qué responde (el contrato). El frontend lee esa respuesta y decide qué mostrar. Y los nombres de los campos no se copian a mano: se generan.",
+  tarea:["Lea la respuesta que envió el backend (panel oscuro).","Elija cuál de las tres pantallas corresponde a esa respuesta.","Responda las dos preguntas finales sobre qué pasa cuando el backend cambia un nombre.","El reto se cumple con las 4 respuestas correctas."],
+  simple:"El «contrato» es la lista exacta de lo que la API recibe y responde: los nombres de los campos, sus tipos y los códigos. Es como el menú de un restaurante: el cliente (el frontend) pide usando los nombres del menú. Si el restaurante renombra un plato y el cliente sigue pidiendo el nombre viejo, hay problema. Por eso los nombres no se copian a mano: se generan desde el menú oficial, /openapi.json, con un comando.",
+  terms:[["contrato","qué envía y qué responde la API, con nombres y tipos exactos"],["201 / 200","códigos de estado: 201 = se creó el análisis; 200 = salió bien, pero mire el contenido"],["tipos generados","un comando lee el contrato del backend y escribe los nombres por usted: npx openapi-typescript"]],
+  render(el){
+    const PANT=[["A","Tarjeta verde con el análisis (sentimiento y temas) y el formulario se limpia."],["B","Aviso sereno: «Recibimos tu reseña; una persona la revisará». El texto se conserva."],["C","Mensaje rojo: «Error del sistema, inténtalo más tarde»."]];
+    const R201={id:7,analisis:{sentimiento:"positivo",temas:["comida"],menciona_salud:false},accion:"publicar",requiere_revision_humana:false,mensaje:"Reseña analizada."};
+    const R200={id:null,analisis:null,accion:null,requiere_revision_humana:true,mensaje:"No pudimos procesar la respuesta automáticamente. Tu reseña quedó para revisión humana."};
+    const Q=[
+      {t:"El backend responde <b>201 Created</b> con este cuerpo. ¿Qué muestra la pantalla?",json:R201,code:"201 Created",ops:PANT,ok:"A",exp:"201 y analisis lleno = camino feliz: se muestra el análisis y se limpia el formulario."},
+      {t:"El backend responde <b>200 OK</b> con este cuerpo. ¿Qué muestra la pantalla?",json:R200,code:"200 OK",ops:PANT,ok:"B",exp:"Mire el campo requiere_revision_humana: true. NO es un error (por eso es 200): el modelo no pudo validar y una persona revisará. Se dice con calma, nunca en rojo."},
+      {t:"El equipo del backend renombró el campo a <code>revision_humana</code> y no avisó. Su frontend <b>copió los nombres a mano</b>. ¿Dónde aparece el problema?",json:null,code:null,ops:[["A","En el editor del programador: el código no compila."],["B","En la pantalla del usuario: la interfaz lee un campo que ya no existe y reacciona mal."],["C","En ningún lado: no pasa nada."]],ok:"B",exp:"Con nombres copiados a mano nada avisa: el código compila, se publica, y falla delante del usuario con un undefined."},
+      {t:"Mismo cambio, pero su frontend <b>generó los tipos</b> con <code>npm run tipos</code> y los regeneró. ¿Dónde aparece el problema?",json:null,code:null,ops:[["A","En el editor del programador: el código no compila."],["B","En la pantalla del usuario."],["C","En ningún lado."]],ok:"A",exp:"Esa es la gracia: el error aparece en SU máquina, antes de publicar, no en la del usuario. Eso compran con un solo comando."}
+    ];
+    const sel=ST.get("contrato",{});let ver=0;
+    el.innerHTML=`<div class="grid2"><div class="card"><h3>Las cuatro preguntas</h3><div id="c2l"></div><div id="c2fb"></div></div>
+      <div class="card"><h3>Lo que envió el backend</h3><div class="term" id="c2t"></div>
+      <p class="lbl" style="margin-top:12px">El comando que genera los nombres por usted</p><div class="term" style="min-height:0">$ npx openapi-typescript http://localhost:8000/openapi.json -o src/api/esquema.ts</div></div></div>`;
+    const pinta=()=>{
+      $("#c2l").innerHTML=Q.map((q,i)=>{const s=sel[i],cls=s?(s===q.ok?"ok":"bad"):"";
+        return `<div class="item col1 ${cls}"><div><b>${i+1}.</b> ${q.t}${s?`<small>${s===q.ok?"✓ Correcto. ":"✗ No. "}${esc(q.exp)}</small>`:""}
+        <div style="display:grid;gap:6px;margin-top:8px">${q.ops.map(o=>`<button type="button" class="btn g" style="text-align:left;border-radius:12px" data-i="${i}" data-o="${o[0]}" aria-pressed="${s===o[0]}">${s===o[0]?"● ":""}<b>${o[0]}.</b> ${esc(o[1])}</button>`).join("")}</div></div></div>`}).join("");
+      const q=Q[ver];
+      $("#c2t").innerHTML=q.json?`<span class="m">HTTP/1.1 ${q.code}\nContent-Type: application/json</span>\n\n`+json(q.json):`<span class="m"># Pregunta ${ver+1}: no hay respuesta que leer; piense en el flujo de trabajo.</span>`;
+      const bien=Q.filter((q,i)=>sel[i]===q.ok).length;
+      $("#c2fb").innerHTML=bien===Q.length?`<p class="fb ok"><b>4 de 4.</b> Leer el contrato con calma (incluso el campo requiere_revision_humana) y generar los tipos: eso es consumir una API como profesional.</p>`:`<p class="fb warn">${bien} de 4 correctas.</p>`;
+      if(bien===Q.length) marcar("contrato");
+    };
+    $("#c2l").onclick=e=>{const b=e.target.closest("[data-i]");if(!b)return;sel[b.dataset.i]=b.dataset.o;ver=+b.dataset.i;ST.set("contrato",sel);pinta()};
+    pinta();
+  }},
+/* ═══════════ 3 · PARSER SSE ═══════════ */
+{ id:"parser", nav:"Parser SSE", dia:"Diapositiva 7", titulo:"La red corta donde quiere",
+  idea:"La respuesta llega en «trozos» de red, y un trozo NO es un evento: puede llegar un evento partido a la mitad. Por eso se junta todo en un búfer y solo se procesa lo completo.",
+  tarea:["Pulse «Llega un trozo de red»: véalo entrar al búfer.","Cuente cuántos eventos COMPLETOS hay en el búfer (un evento termina en una línea en blanco doble, marcada ⏎⏎).","Responda. Si acierta, lo completo se procesa y pasa al chat; el resto espera en el búfer.","El reto se cumple con los 3 trozos bien contados."],
+  simple:"Imagine que le dictan una carta por teléfono y la llamada se corta a mitad de una frase. Usted no publica la frase a medias: anota lo que tiene en un borrador (el búfer) y espera la siguiente llamada para completarla. El backend separa cada evento con una línea en blanco doble; mientras esa marca no llegue, el evento no está completo.",
+  terms:[["trozo (chunk)","el pedazo de datos que la red entrega de una vez; su tamaño es impredecible"],["búfer","el borrador donde se acumulan los trozos hasta que algo está completo"],["evento SSE","un mensaje con nombre (token, fin o error) que termina en línea en blanco doble"],["token","pedacito de texto que el modelo entrega; una palabra suele ser 1 o 2 tokens"]],
+  render(el){
+    const CH=[
+      {c:"event: token\ndata: Sí. El locro de la Casa de las",ok:0,exp:"Todavía no hay ninguna línea en blanco doble: el evento está a medias. Se guarda TODO en el búfer y se espera."},
+      {c:" Guatitas\n\nevent: token\ndata:  lleva queso",ok:1,exp:"El trozo completó el primer evento (ahí está el ⏎⏎) y trajo el comienzo del segundo. Se procesa 1 y el pedazo suelto queda en el búfer."},
+      {c:" y aguacate.\n\nevent: fin\ndata: {\"fin\": true}\n\n",ok:2,exp:"Se completó el segundo token Y llegó el evento fin completo: 2 eventos. Con fin, el botón de enviar se vuelve a activar."}
+    ];
+    const st=ST.get("parser",{paso:0,resp:{}});
+    let buf = "", chatTxt = "";
+    // reconstruir según progreso
+    const reconstruye=()=>{buf="";chatTxt="";for(let i=0;i<st.paso;i++){buf+=CH[i].c;if(st.resp[i]===CH[i].ok){const ev=buf.split("\n\n");buf=ev.pop();ev.forEach(e=>{const m=e.match(/data: ?([\s\S]*)/);if(m&&e.includes("token"))chatTxt+=m[1]})}}};
+    el.innerHTML=`<div class="grid2"><div class="card"><h3>1 · La red y el búfer</h3>
+      <div class="row"><button class="btn" id="p3go">Llega un trozo de red</button><span class="lbl" id="p3n"></span></div>
+      <p class="lbl" style="margin-top:12px">Contenido del búfer (⏎⏎ = línea en blanco doble, el separador)</p><div class="term" id="p3b" style="min-height:90px"></div>
+      <div id="p3q"></div><div id="p3fb"></div></div>
+      <div class="card"><h3>2 · Lo que ve Ana en el chat</h3>${telefono("p3t","")}</div></div>`;
+    const pintaTel=(fin)=>{const dentro=`<div class="chat"><div class="globo u">¿El locro lleva queso?</div>${chatTxt?`<div class="globo ${fin?"":"cur"}">${esc(chatTxt)}</div>`:`<div class="globo" style="color:var(--muted)">pensando…</div>`}</div><div class="entrada"><input type="text" ${fin?"":"disabled"} aria-label="Pregunta"><button class="btn" ${fin?"":"disabled"}>Enviar</button></div>`;$("#p3t").innerHTML=dentro};
+    const muestraBuf=()=>{$("#p3b").innerHTML=buf?esc(buf).replace(/\n\n/g,'<span class="sep">⏎⏎</span>\n'):'<span class="m">(vacío: no ha llegado nada o ya se procesó todo)</span>'};
+    const pinta=()=>{
+      reconstruye();
+      const terminado=st.paso>=CH.length&&st.resp[CH.length-1]===CH[CH.length-1].ok;
+      muestraBuf();pintaTel(terminado);
+      $("#p3n").textContent=`Trozos llegados: ${st.paso} de ${CH.length}`;
+      $("#p3go").disabled=st.paso>=CH.length||(st.paso>0&&st.resp[st.paso-1]!==CH[st.paso-1].ok);
+      if(st.paso>0){const i=st.paso-1,r=st.resp[i];
+        if(r===undefined){$("#p3q").innerHTML=`<p class="lbl" style="margin-top:12px">¿Cuántos eventos COMPLETOS hay ahora en el búfer?</p><div class="seg">${[0,1,2].map(n=>`<button type="button" data-n="${n}">${n}</button>`).join("")}</div>`;$("#p3fb").innerHTML=""}
+        else if(r===CH[i].ok){$("#p3q").innerHTML="";$("#p3fb").innerHTML=`<p class="fb ok"><b>✓ ${r} evento${r===1?"":"s"}.</b> ${esc(CH[i].exp)}</p>`+(terminado?`<p class="fb ok"><b>Reto cumplido.</b> Esto es exactamente lo que hace el bucle con <code>buf.split("\\n\\n")</code>: procesa lo completo y guarda el resto con <code>buf = ev.pop()</code>.</p>`:"")}
+        else {$("#p3q").innerHTML=`<p class="lbl" style="margin-top:12px">Pruebe otra vez: ¿cuántos eventos COMPLETOS hay?</p><div class="seg">${[0,1,2].map(n=>`<button type="button" data-n="${n}">${n}</button>`).join("")}</div>`;$("#p3fb").innerHTML=`<p class="fb bad"><b>✗ No son ${r}.</b> Cuente las marcas ⏎⏎ que CIERRAN un evento. Lo que está después de la última marca, está incompleto.</p>`}}
+      else {$("#p3q").innerHTML="";$("#p3fb").innerHTML=""}
+      if(terminado) marcar("parser");
+    };
+    $("#p3go").onclick=()=>{st.paso++;delete st.resp[st.paso-1];ST.set("parser",st);pinta()};
+    el.onclick=e=>{const b=e.target.closest("[data-n]");if(!b)return;st.resp[st.paso-1]=+b.dataset.n;ST.set("parser",st);pinta()};
+    pinta();
+  }},
+/* ═══════════ 4 · DETENER ═══════════ */
+{ id:"detener", nav:"Detener", dia:"Diapositiva 7", titulo:"Detener a tiempo ahorra dinero",
+  idea:"Cada token que el modelo genera se cobra, lo lea alguien o no. El botón Detener (AbortController) cierra la conexión y el backend deja de pedir tokens.",
+  tarea:["Pulse «Preguntar»: la respuesta empieza a llegar y el contador de tokens corre.","Ana ya entendió lo esencial en las primeras líneas: pulse «■ Detener» antes de 150 tokens.","Mire cuántos tokens (y qué parte del cupo) se ahorraron.","El reto se cumple al detener antes de 150 tokens."],
+  simple:"El modelo cobra por token, como un taxi cobra por metro recorrido. Si la persona ya llegó a donde quería, dejar el taxímetro corriendo es tirar la plata. «Detener» es bajarse del taxi: la conexión se cierra, el backend deja de consumir el stream del modelo y esos tokens nunca se cobran.",
+  terms:[["AbortController","el objeto del navegador que permite cancelar una petición en curso: ctrl.abort()"],["cupo (cuota)","la cantidad de tokens por día que el plan gratuito del proveedor les permite"]],
+  render(el){
+    const FR="Con mucho gusto. La gastronomía de Ambato es una de las más ricas de la sierra ecuatoriana. El plato más famoso es el llapingacho ambateño: tortillas de papa con queso, acompañadas de chorizo, huevo frito y aguacate. También son típicos el pan de Pinllo, horneado en leña; las gallinas de Pinllo; el morocho con empanadas; los jugos de frutas de la zona, como la clásica mora de Castilla; el pan de yuca; el caldo de pata; las tortillas con caucara; el hornado con mote; y muchos platos más que se preparan durante la Fiesta de la Fruta y de las Flores, cuando la ciudad entera se llena de aromas, colores y sabores que celebran la generosidad de la tierra tungurahuense y la tradición de sus familias…";
+    const TOKS=FR.split(" ");const TOT=380;
+    const st=ST.get("detener",{logrado:false,mejor:null});
+    let timer=null,n=0,activo=false;
+    el.innerHTML=`<div class="grid2"><div class="card"><h3>El contador del cupo</h3>
+      <div class="kv"><span class="lbl">Tokens generados</span><span class="big" id="d4n">0</span>
+      <span class="lbl">Si nadie detiene, llegaría a</span><span>${TOT} tokens</span>
+      <span class="lbl">Tokens ahorrados</span><span class="big" id="d4a" style="color:var(--ok)">—</span></div>
+      <div class="row" style="margin-top:14px"><button class="btn" id="d4go">Preguntar</button><button class="btn c" id="d4stop" disabled>■ Detener</button></div>
+      <div id="d4fb">${st.logrado?`<p class="fb ok"><b>Reto cumplido.</b> Ya lo logró antes (mejor marca: ${st.mejor} tokens). Puede repetir cuantas veces quiera.</p>`:""}</div></div>
+      <div class="card"><h3>Lo que ve Ana</h3>${telefono("d4t","")}</div></div>`;
+    const pintaTel=(txt,fin,parado)=>{$("#d4t").innerHTML=`<div class="chat"><div class="globo u">Cuéntame TODA la historia de la gastronomía de Ambato</div>${txt?`<div class="globo ${fin||parado?"":"cur"}">${esc(txt)}${parado?" ⏹":""}</div>`:""}</div><div class="entrada"><input type="text" ${fin||parado?"":"disabled"} aria-label="Pregunta"><button class="btn" ${fin||parado?"":"disabled"}>Enviar</button></div>${parado?`<p style="font-size:12.5px;color:var(--muted);margin:6px 0 0">Conexión cerrada con ctrl.abort(). El backend dejó de consumir el stream del modelo.</p>`:""}`};
+    const para=(completo)=>{clearInterval(timer);activo=false;$("#d4stop").disabled=true;$("#d4go").disabled=false;
+      if(!completo){const ahorro=TOT-n;$("#d4a").textContent=ahorro+" ("+Math.round(100*ahorro/TOT)+"% del costo)";
+        if(n<150){st.logrado=true;st.mejor=st.mejor===null?n:Math.min(st.mejor,n);ST.set("detener",st);marcar("detener");
+          $("#d4fb").innerHTML=`<p class="fb ok"><b>Reto cumplido: detuvo en ${n} tokens y ahorró ${ahorro}.</b> En el código, el botón llama a ctrl.abort(); el navegador cierra la conexión y el backend deja de leer el stream. La tecla Escape hace lo mismo.</p>`}
+        else $("#d4fb").innerHTML=`<p class="fb warn"><b>Detuvo en ${n} tokens.</b> Ahorró ${ahorro}, pero Ana ya había entendido mucho antes. Pruebe de nuevo y detenga antes de 150.</p>`}
+      else {$("#d4a").textContent="0 (llegó completa)";$("#d4fb").innerHTML=(st.logrado?$("#d4fb").innerHTML:"")+`<p class="fb warn">Llegó el evento <b>fin</b>: los ${TOT} tokens se cobraron y recién ahí se reactivó el botón. Compare con lo que pasa al detener.</p>`}};
+    $("#d4go").onclick=()=>{if(activo)return;activo=true;n=0;$("#d4go").disabled=true;$("#d4stop").disabled=false;$("#d4a").textContent="—";if(!st.logrado)$("#d4fb").innerHTML="";
+      let i=0,txt="";pintaTel("",false,false);
+      timer=setInterval(()=>{if(i<TOKS.length){txt+=(i?" ":"")+TOKS[i];i++}n=Math.min(TOT,n+2);$("#d4n").textContent=n;pintaTel(txt,n>=TOT,false);if(n>=TOT)para(true)},70)};
+    $("#d4stop").onclick=()=>{if(!activo)return;const cur=$("#d4t .globo:last-child");para(false);pintaTel(cur?cur.textContent:"",false,true)};
+    pintaTel("",true,false);
+  }},
+/* ═══════════ 5 · ERRORES ═══════════ */
+{ id:"errores", nav:"Errores", dia:"Diapositiva 8", titulo:"Cada error, su reacción prevista",
+  idea:"El backend responde cada falla con un código y un formato fijos (el contrato de errores). El frontend tiene UNA reacción prevista para cada uno, y el texto de la persona nunca se pierde.",
+  tarea:["Pulse una de las tres situaciones: verá la respuesta real del backend en el panel oscuro.","Elija cómo debe reaccionar la pantalla.","En el 429, mire la cuenta regresiva real y el reintento automático.","El reto se cumple con las 3 situaciones correctas."],
+  simple:"Cuando algo falla, el backend no manda un mensaje cualquiera: manda un código (un número que resume qué pasó) y un cuerpo con formato fijo. 422 = los datos no sirven; 429 = demasiadas solicitudes, espera tantos segundos; 503 = el servicio está caído. Como el frontend sabe qué significa cada código, puede reaccionar bien sin adivinar. Y hay una regla de oro: pase lo que pase, lo que la persona escribió NO se borra.",
+  terms:[["código de estado","el número con que el servidor resume el resultado: 2xx bien, 4xx problema de la solicitud, 5xx problema del servidor"],["problem+json","el formato estándar del cuerpo de un error: type, title, status, detail"],["Retry-After","cabecera que dice cuántos segundos esperar antes de reintentar"]],
+  render(el){
+    const OPS=[["A","Marcar el campo con el problema y conservar el texto escrito."],["B","Mostrar una cuenta regresiva y reintentar solo cuando llegue a cero."],["C","Decir claro que el servicio no está disponible, sin culpar a la persona."],["D","Borrar el formulario y mostrar una alerta roja genérica: «Error»."]];
+    const S=[
+      {id:"e422",btn:"Enviar una reseña de 3 letras",code:"422 Unprocessable Content",extra:"",body:{type:"/errores/entrada-invalida",title:"La entrada no es válida",status:422,detail:"El texto debe tener entre 10 y 1500 caracteres."},ok:"A",exp:"El 422 dice QUÉ campo está mal: se marca ese campo y se conserva el texto. Nada frustra más que perder una reseña de 500 palabras."},
+      {id:"e429",btn:"Enviar la pregunta número 11",code:"429 Too Many Requests",extra:"\nRetry-After: 6",body:{type:"/errores/limite-alcanzado",title:"Demasiadas solicitudes",status:429,detail:"Espera 6 segundos e intenta de nuevo."},ok:"B",exp:"El backend dijo cuánto esperar (Retry-After: 6). La pantalla muestra la cuenta y reintenta sola. Mire la simulación de abajo."},
+      {id:"e503",btn:"Preguntar con todo caído",code:"503 Service Unavailable",extra:"\nRetry-After: 30",body:{type:"/errores/proveedor-no-disponible",title:"El asistente no está disponible",status:503,detail:"Intenta de nuevo en unos minutos."},ok:"C",exp:"Ni el proveedor principal ni el de respaldo respondieron. Se dice con claridad y serenidad; el texto de la persona sigue ahí para cuando vuelva el servicio."}
+    ];
+    const st=ST.get("errores",{});let ver=null,cuenta=null;
+    el.innerHTML=`<div class="grid2"><div class="card"><h3>1 · Provoque la falla y elija la reacción</h3>
+      <div class="row" id="e5btns">${S.map((s,i)=>`<button class="btn g" type="button" data-s="${i}">${esc(s.btn)}</button>`).join("")}</div>
+      <div id="e5q"></div><div id="e5fb"></div></div>
+      <div class="card"><h3>2 · La respuesta del backend y la pantalla</h3><div class="term" id="e5t"><span class="m">Pulse una situación a la izquierda.</span></div><div id="e5tel" style="margin-top:12px"></div></div></div>`;
+    const pintaTel=(modo,seg)=>{const inp=`<div class="entrada"><input type="text" value="¿Y la sopa de morocho?" ${modo==="ok"?"":"disabled"} aria-label="Pregunta"><button class="btn" ${modo==="ok"?"":"disabled"}>Enviar</button></div>`;
+      let b="";
+      if(modo==="422")b=`<div class="banner bad">El texto debe tener entre 10 y 1500 caracteres. <u>Tu texto sigue aquí abajo.</u></div>`;
+      if(modo==="429")b=`<div class="banner warn">⏳ Muchas preguntas seguidas. Reintentamos en <b>${seg} s</b>…</div>`;
+      if(modo==="503")b=`<div class="banner bad">El asistente no está disponible en este momento. Vuelve a intentarlo en unos minutos.</div>`;
+      if(modo==="ok")b=`<div class="banner calm">✓ Reintento automático: 200 OK. La pregunta salió y el texto nunca se perdió.</div>`;
+      $("#e5tel").innerHTML=telefono("e5m",b+inp)};
+    const pinta=()=>{
+      if(ver===null){$("#e5q").innerHTML="";$("#e5tel").innerHTML="";}
+      else{const s=S[ver],r=st[ver];
+        $("#e5t").innerHTML=`<span class="m">HTTP/1.1 ${s.code}\nContent-Type: application/problem+json${s.extra}</span>\n\n`+json(s.body);
+        $("#e5q").innerHTML=`<p class="lbl" style="margin-top:14px">¿Cómo reacciona la pantalla ante este ${s.body.status}?</p><div style="display:grid;gap:6px">${OPS.map(o=>`<button type="button" class="btn g" style="text-align:left;border-radius:12px" data-o="${o[0]}" aria-pressed="${r===o[0]}">${r===o[0]?"● ":""}<b>${o[0]}.</b> ${esc(o[1])}</button>`).join("")}</div>`;
+        if(r===undefined)pintaTel(null);
+        else if(r===s.ok){pintaTel(ver===1?null:S[ver].id.slice(1));
+          if(ver===1){let seg=6;pintaTel("429",seg);clearInterval(cuenta);cuenta=setInterval(()=>{seg--;if(seg<=0){clearInterval(cuenta);pintaTel("ok")}else pintaTel("429",seg)},700)}
+          else pintaTel(S[ver].id.slice(1));}
+        else pintaTel(null);}
+      const bien=S.filter((s,i)=>st[i]===s.ok).length;
+      let h="";
+      if(ver!==null&&st[ver]!==undefined)h=st[ver]===S[ver].ok?`<p class="fb ok"><b>✓ Correcto.</b> ${esc(S[ver].exp)}</p>`:`<p class="fb bad"><b>✗ Esa no.</b> Pista: ${esc(S[ver].exp)} Y la opción D nunca es la respuesta: borrar el trabajo de la persona es el peor error de una interfaz.</p>`;
+      if(bien===S.length){h+=`<p class="fb ok"><b>3 de 3.</b> Todas las fallas se manejan en UN solo lugar del código, no con un alert distinto en cada pantalla.</p>`;marcar("errores")}
+      else h+=`<p class="fb warn">${bien} de 3 situaciones correctas.</p>`;
+      $("#e5fb").innerHTML=h};
+    $("#e5btns").onclick=e=>{const b=e.target.closest("[data-s]");if(!b)return;ver=+b.dataset.s;clearInterval(cuenta);pinta()};
+    $("#e5q").onclick=e=>{const b=e.target.closest("[data-o]");if(!b||ver===null)return;st[ver]=b.dataset.o;ST.set("errores",st);clearInterval(cuenta);pinta()};
+    pinta();
+  }},
+/* ═══════════ 6 · RENDERIZADO ═══════════ */
+{ id:"renderizado", nav:"Renderizado", dia:"Diapositiva 9", titulo:"Se muestra, nunca se ejecuta",
+  idea:"Si un usuario logra manipular al modelo, la respuesta puede traer código escondido. Mostrada como TEXTO es inofensiva; insertada como HTML, se ejecuta (riesgo OWASP LLM05).",
+  tarea:["Pulse «Mostrar como TEXTO» y luego «Insertar como HTML»: compare qué pasa en la pantalla simulada.","Clasifique las 5 líneas de código como seguras o peligrosas.","El reto se cumple viendo las dos simulaciones y con las 5 líneas correctas."],
+  simple:"El navegador trata un texto de dos maneras muy distintas. Como TEXTO, los símbolos < y > se dibujan tal cual, como letras. Como HTML, se interpretan: una etiqueta puede cargar cosas y ejecutar código. La respuesta del modelo viene de afuera y pudo ser manipulada por otro usuario, así que se trata como un paquete sin remitente: se mira, no se abre. (Aquí todo es una simulación: ningún código real se ejecuta en su navegador.)",
+  terms:[["XSS","«cross-site scripting»: lograr que una página ejecute código de un atacante"],["innerHTML","propiedad que interpreta un texto como HTML: la puerta que hay que mantener cerrada"],["sanitizar","limpiar un HTML quitándole scripts y atributos peligrosos (lo hace la librería DOMPurify)"]],
+  render(el){
+    const MAL='¡Gracias por tu reseña! <img src=x onerror="enviar(document.cookie)">';
+    const L=[
+      ["<p>{respuesta}</p>  (React)",true,"React escapa el texto entre llaves: < y > se dibujan como letras."],
+      ["elemento.textContent = respuesta",true,"textContent siempre trata el valor como texto plano."],
+      ["elemento.innerHTML = respuesta",false,"innerHTML interpreta las etiquetas: el código del atributo onerror se ejecuta."],
+      ["dangerouslySetInnerHTML={{__html: respuesta}}",false,"Es el innerHTML de React; el nombre ya avisa el peligro."],
+      ["innerHTML = DOMPurify.sanitize(marked.parse(respuesta))",true,"Para Markdown: primero convertir, DESPUÉS sanitizar. DOMPurify elimina scripts y atributos de eventos."]
+    ];
+    const st=ST.get("render",{vioT:false,vioH:false,sel:{}});
+    el.innerHTML=`<div class="grid2"><div class="card"><h3>1 · La respuesta manipulada del modelo</h3>
+      <div class="term">${esc(MAL)}</div>
+      <p style="font-size:14px;color:var(--muted);margin:10px 0">Un usuario escribió una reseña diseñada para que el modelo devolviera esto. Parece amable, pero trae una etiqueta con código escondido.</p>
+      <div class="row"><button class="btn g" id="r6a">Mostrar como TEXTO</button><button class="btn c" id="r6b">Insertar como HTML (innerHTML)</button></div>
+      <div id="r6tel" style="margin-top:12px">${telefono("r6m",'<p style="color:var(--muted);font-size:14px;margin:4px">Pulse un botón para ver el resultado.</p>')}</div></div>
+      <div class="card"><h3>2 · ¿Qué línea es segura?</h3><div id="r6l"></div><div id="r6fb"></div></div></div>`;
+    const pintaTel=m=>{
+      if(m==="t")$("#r6tel").innerHTML=telefono("r6m",`<div class="chat"><div class="globo">${esc(MAL)}</div></div><div class="banner calm">✓ Inofensivo: los símbolos &lt; y &gt; se dibujaron como letras. Se ve feo, pero nada se ejecutó. (Y con la reseña bien hecha, ni se vería: el ataque quedaría en evidencia.)</div>`);
+      else $("#r6tel").innerHTML=telefono("r6m",`<div class="chat"><div class="globo">¡Gracias por tu reseña! <span style="border:1px dashed var(--bad);border-radius:6px;padding:0 6px;color:var(--bad)">imagen rota</span></div></div><div class="banner bad">💀 Simulación: la imagen falló, el atributo onerror se ejecutó y document.cookie viajó al sitio del atacante. Eso es XSS a través del modelo.</div>`)};
+    const pinta=()=>{
+      $("#r6l").innerHTML=L.map((l,i)=>{const s=st.sel[i],cls=s===undefined?"":(s===l[1]?"ok":"bad");
+        return `<div class="item ${cls}"><div><code style="font-size:12.5px">${esc(l[0])}</code>${s!==undefined?`<small>${s===l[1]?"✓ ":"✗ Al revés. "}${esc(l[2])}</small>`:""}</div>
+        <div class="seg"><button type="button" data-i="${i}" data-v="1" aria-pressed="${s===true}">Segura</button><button type="button" data-i="${i}" data-v="0" aria-pressed="${s===false}">Peligrosa</button></div></div>`}).join("");
+      const bien=L.filter((l,i)=>st.sel[i]===l[1]).length;
+      let h=bien===L.length?`<p class="fb ok"><b>5 de 5.</b></p>`:`<p class="fb warn">${bien} de 5 líneas correctas.</p>`;
+      if(!(st.vioT&&st.vioH))h+=`<p class="fb warn">Falta ver ${st.vioT?"":"«como TEXTO»"}${!st.vioT&&!st.vioH?" y ":""}${st.vioH?"":"«como HTML»"} en el panel 1.</p>`;
+      if(bien===L.length&&st.vioT&&st.vioH){h=`<p class="fb ok"><b>Reto cumplido.</b> La regla no tiene excepciones: la salida del modelo se muestra, nunca se ejecuta. Si necesitan Markdown: convertir primero, sanitizar después, y enlaces solo http/https.</p>`;marcar("renderizado")}
+      $("#r6fb").innerHTML=h};
+    $("#r6a").onclick=()=>{st.vioT=true;ST.set("render",st);pintaTel("t");pinta()};
+    $("#r6b").onclick=()=>{st.vioH=true;ST.set("render",st);pintaTel("h");pinta()};
+    $("#r6l").onclick=e=>{const b=e.target.closest("[data-i]");if(!b)return;st.sel[b.dataset.i]=b.dataset.v==="1";ST.set("render",st);pinta()};
+    pinta();
+  }},
+/* ═══════════ 7 · SECRETOS ═══════════ */
+{ id:"secretos", nav:"Secretos", dia:"Diapositiva 10", titulo:"¿Qué puede viajar al navegador?",
+  idea:"Todo lo que llega al navegador lo puede leer cualquiera. Vite copia cada variable VITE_ dentro del JavaScript publicado, así que la clave del modelo vive SOLO en el backend.",
+  tarea:["Para cada dato, decida: ¿puede ir al navegador o solo al servidor?","Con las 6 correctas, pulse «Compilar y buscar la clave en dist/» y lea el resultado.","El reto se cumple con las 6 correctas y la búsqueda limpia."],
+  simple:"El frontend no es un lugar privado: es código que se descarga a la computadora de cada visitante, y cualquiera puede leerlo completo con las herramientas del navegador. Por eso la pregunta de este reto es la misma que con una cartelera pública: ¿esto puede estar a la vista de todos? La dirección del backend sí (igual se ve). La clave del modelo jamás: quien la tenga puede gastar el cupo de ustedes.",
+  terms:[["dist/","la carpeta con el frontend ya compilado, lista para publicarse en internet"],["VITE_","prefijo de Vite: toda variable que lo lleve se copia, con su valor, dentro del JavaScript público"],["grep","comando que busca un texto dentro de archivos; aquí, buscar la clave dentro de dist/"]],
+  render(el){
+    const P=[
+      ["VITE_API_URL=http://localhost:8000","nav","La dirección del backend no es secreta: el navegador la usa en cada llamada y cualquiera la ve en la pestaña Red."],
+      ["GEMINI_API_KEY=AIza…","srv","La clave del modelo es EL secreto: vive en el .env del backend, que es quien llama al proveedor."],
+      ["GROQ_API_KEY=gsk_…","srv","La clave del respaldo es igual de secreta que la principal."],
+      ["FRONTEND_URL (para CORS)","srv","La lee el backend para decidir a qué origen le responde; el navegador no la necesita."],
+      ["El session_id de la conversación","nav","Es un identificador aleatorio, no un secreto: vive en sessionStorage e identifica la pestaña."],
+      ["DATABASE_URL de la base de datos","srv","La dirección y clave de la base de datos jamás salen del servidor."]
+    ];
+    const st=ST.get("secretos",{sel:{},busco:false});
+    el.innerHTML=`<div class="grid2"><div class="card"><h3>1 · Ubique cada dato</h3><div id="s7l"></div></div>
+      <div class="card"><h3>2 · La prueba de la clase: buscar la clave en dist/</h3>
+      <p style="font-size:14px;color:var(--muted);margin:0 0 10px">Antes de entregar, se compila y se busca el comienzo de la clave dentro de la carpeta publicada. Debe dar cero resultados.</p>
+      <div class="row"><button class="btn" id="s7go">Compilar y buscar la clave en dist/</button></div>
+      <div class="term" id="s7t" style="margin-top:12px"><span class="m">$ npm run build && grep -r "AIza" dist/</span></div><div id="s7fb"></div></div></div>`;
+    const pinta=()=>{
+      $("#s7l").innerHTML=P.map((p,i)=>{const s=st.sel[i],cls=s?(s===p[1]?"ok":"bad"):"";
+        return `<div class="item ${cls}"><div><code style="font-size:12.5px">${esc(p[0])}</code>${s?`<small>${s===p[1]?"✓ ":"✗ No. "}${esc(p[2])}</small>`:""}</div>
+        <div class="seg"><button type="button" data-i="${i}" data-z="nav" aria-pressed="${s==="nav"}">Navegador</button><button type="button" data-i="${i}" data-z="srv" aria-pressed="${s==="srv"}">Solo servidor</button></div></div>`}).join("");
+      const bien=P.filter((p,i)=>st.sel[i]===p[1]).length;
+      const fuga=st.sel[1]==="nav"||st.sel[2]==="nav";
+      let h="";
+      if(st.busco){
+        if(fuga){$("#s7t").innerHTML=`<span class="m">$ npm run build && grep -r "AIza" dist/</span>\n<span class="e">dist/assets/index-B7xq.js:1:…VITE_GEMINI_KEY:"AIzaSyD4x…"</span>`;h=`<p class="fb bad"><b>¡La clave está publicada!</b> Puso una clave en el navegador y la compilación la copió dentro de dist/. En la vida real habría que revocarla y generar otra. Corrija la ubicación y vuelva a buscar.</p>`}
+        else if(bien===P.length){$("#s7t").innerHTML=`<span class="m">$ npm run build && grep -r "AIza" dist/</span>\n<span class="ok">(sin resultados) ✓</span>`;h=`<p class="fb ok"><b>Reto cumplido: búsqueda limpia.</b> Las claves viven solo en el backend, y esta búsqueda es parte de la evidencia técnica de mañana.</p>`;marcar("secretos")}
+        else{$("#s7t").innerHTML=`<span class="m">$ npm run build && grep -r "AIza" dist/</span>\n<span class="ok">(sin resultados)</span>`;h=`<p class="fb warn">La clave no se fugó, pero aún hay ${6-bien} dato${6-bien===1?"":"s"} mal ubicado${6-bien===1?"":"s"} a la izquierda.</p>`}}
+      else h=bien===P.length?`<p class="fb warn">Las 6 correctas. Ahora pulse el botón de compilar y buscar.</p>`:`<p class="fb warn">${bien} de 6 correctas a la izquierda.</p>`;
+      $("#s7fb").innerHTML=h};
+    $("#s7l").onclick=e=>{const b=e.target.closest("[data-i]");if(!b)return;st.sel[b.dataset.i]=b.dataset.z;st.busco=false;ST.set("secretos",st);pinta()};
+    $("#s7go").onclick=()=>{st.busco=true;ST.set("secretos",st);pinta()};
+    pinta();
+  }},
+/* ═══════════ 8 · ACCESIBILIDAD ═══════════ */
+{ id:"accesibilidad", nav:"Accesibilidad", dia:"Diapositiva 12", titulo:"Lo que escucha quien no ve la pantalla",
+  idea:"Para una persona ciega, el lector de pantalla ES la pantalla. Con streaming, la configuración decide si escucha ruido, silencio o la respuesta completa una sola vez.",
+  tarea:["Pruebe «Llega una respuesta» con distintas combinaciones de los tres interruptores y LEA lo que anunciaría el lector.","Pruebe también «Llega un error 429».","Encuentre la combinación donde la respuesta se anuncia UNA vez completa y el error se anuncia DE INMEDIATO.","El reto se cumple probando ambos botones con esa combinación."],
+  simple:"Un lector de pantalla es un programa que lee en voz alta lo que hay en la página; es como escuchar la interfaz por teléfono. Los atributos aria son notas que dejamos en el HTML para ese programa: aria-live marca una zona cuyos cambios se anuncian; aria-busy le pide «espera, esto aún está cambiando»; y role=alert marca un aviso urgente que se anuncia ya. No cambian nada visual: cambian lo que se escucha.",
+  terms:[["lector de pantalla","programa que lee la interfaz en voz alta (VoiceOver en el Mac: se activa con Cmd + F5)"],["aria-live=\"polite\"","anunciar los cambios de esta zona, sin interrumpir lo que la persona está escuchando"],["aria-busy","«contenido en construcción»: el lector espera a que termine para anunciarlo"],["role=\"alert\"","aviso urgente: se anuncia de inmediato"]],
+  render(el){
+    const st=ST.get("acc",{live:"polite",busy:false,alert:false,okR:false,okE:false});
+    el.innerHTML=`<div class="grid2"><div class="card"><h3>1 · Los tres interruptores del HTML</h3>
+      <div class="item"><div><code>aria-live</code> en la zona de respuesta<small>¿se anuncian sus cambios?</small></div><div class="seg" id="a8l"><button type="button" data-v="off">sin aria-live</button><button type="button" data-v="polite">"polite"</button></div></div>
+      <div class="item"><div><code>aria-busy</code> mientras llega el streaming<small>¿se espera a que el texto termine?</small></div><div class="seg" id="a8b"><button type="button" data-v="no">no</button><button type="button" data-v="si">sí</button></div></div>
+      <div class="item"><div><code>role="alert"</code> en los errores<small>¿los avisos urgentes se anuncian ya?</small></div><div class="seg" id="a8a"><button type="button" data-v="no">no</button><button type="button" data-v="si">sí</button></div></div>
+      <div class="row" style="margin-top:12px"><button class="btn" id="a8r">▶ Llega una respuesta</button><button class="btn g" id="a8e">▶ Llega un error 429</button></div><div id="a8fb"></div></div>
+      <div class="card"><h3>2 · Lo que anuncia el lector de pantalla</h3><div class="log" id="a8log" aria-label="Anuncios del lector">Pulse un botón de reproducción.</div>
+      <p style="font-size:13px;color:var(--muted);margin:10px 0 0">Pruébelo de verdad esta noche: en el Mac, Cmd + F5 enciende VoiceOver.</p></div></div>`;
+    const segs={a8l:["live",["off","polite"]],a8b:["busy",["no","si"]],a8a:["alert",["no","si"]]};
+    const pintaSeg=()=>{for(const id in segs){const [k]=segs[id];document.querySelectorAll("#"+id+" button").forEach(b=>{const v=k==="live"?st.live:(st[k]?"si":"no");b.setAttribute("aria-pressed",b.dataset.v===v)})}};
+    const checa=()=>{if(st.okR&&st.okE){marcar("accesibilidad");$("#a8fb").innerHTML=`<p class="fb ok"><b>Reto cumplido.</b> La respuesta se anuncia una sola vez, completa, y el error se anuncia de inmediato. Dos atributos y un role: eso separa un producto profesional de un prototipo.</p>`}};
+    $("#a8r").onclick=()=>{let out;
+      if(st.live==="off")out=`<span class="e">(silencio)</span>\nLa respuesta llegó, el texto está en la pantalla… y la persona no se enteró. Sin aria-live, el lector no anuncia los cambios.`;
+      else if(!st.busy)out=`«Sí.» — «Sí. El» — «Sí. El locro» — «Sí. El locro de» — «…de la» — «…la Casa» — <span class="e">(42 anuncios que se interrumpen unos a otros)</span>\nInsoportable: cada token dispara un anuncio nuevo.`;
+      else{out=`<span class="ok">«Sí. El locro de la Casa de las Guatitas lleva queso y aguacate.»</span>\nUn solo anuncio, completo, cuando llegó el evento fin y aria-busy pasó a falso.`;st.okR=true}
+      $("#a8log").innerHTML=out;ST.set("acc",st);checa()};
+    $("#a8e").onclick=()=>{let out;
+      if(!st.alert)out=`<span class="e">(nada por ahora)</span>\nEl 429 puso una cuenta regresiva en pantalla, pero sin role="alert" el lector no la anuncia a tiempo: la persona sigue esperando sin saber por qué.`;
+      else{out=`<span class="ok">«Alerta: muchas preguntas seguidas. Reintentamos en 6 segundos. Tu texto no se pierde.»</span>\nAnunciado de inmediato: un aviso urgente no espera turno.`;st.okE=true}
+      $("#a8log").innerHTML=out;ST.set("acc",st);checa()};
+    el.onclick=e=>{const b=e.target.closest(".seg button");if(!b)return;const id=b.parentElement.id;if(!segs[id])return;const[k]=segs[id];if(k==="live")st.live=b.dataset.v;else st[k]=b.dataset.v==="si";ST.set("acc",st);pintaSeg()};
+    pintaSeg();checa();
+  }}
+];
+
+const GUIA = {
+ estados:["Reconocer los 7 estados por los que pasa la pantalla de un asistente con IA, con 6 escenas de la vida real.","Lea cada escena, elija el estado y mire a la derecha cómo se ve la pantalla en ese estado.","Modelar la interfaz como una máquina de estados, donde los estados imposibles no se pueden escribir."],
+ contrato:["Leer respuestas reales del backend (201, 200 con revisión) y decidir qué muestra la pantalla; y ver dónde aparece el error cuando el backend cambia un nombre.","Lea el JSON del panel oscuro y elija la pantalla correcta entre tres opciones.","Reaccionar bien a cada respuesta y entender por qué los tipos se generan con un comando, no se copian a mano."],
+ parser:["Ver con sus propios ojos que un trozo de red no es un evento: los eventos llegan partidos.","Haga llegar los trozos uno por uno y cuente cuántos eventos completos hay en el búfer.","Entender el búfer y el corte por línea en blanco doble: el corazón del streaming en el navegador."],
+ detener:["Detener una respuesta larga a tiempo y medir cuántos tokens (dinero) se ahorran.","Pulse Preguntar, deje correr el contador y pulse Detener antes de 150 tokens.","Saber qué hace ctrl.abort(): cierra la conexión y el backend deja de pagar tokens que nadie lee."],
+ errores:["Provocar un 422, un 429 y un 503 reales y elegir la reacción correcta de la pantalla para cada uno.","Pulse cada situación, lea la respuesta problem+json y elija la reacción; el 429 trae cuenta regresiva de verdad.","Manejar todos los errores en un solo lugar y nunca, nunca borrar lo que la persona escribió."],
+ renderizado:["Comparar la misma respuesta manipulada mostrada como texto (inofensiva) y como HTML (ataque simulado).","Pulse los dos botones de simulación y clasifique 5 líneas de código como seguras o peligrosas.","Grabarse la regla LLM05: la salida del modelo se muestra, nunca se ejecuta."],
+ secretos:["Decidir qué datos pueden viajar al navegador y cuáles solo viven en el servidor.","Ubique 6 datos con los botones y luego compile y busque la clave dentro de dist/.","No publicar jamás una clave: la prueba del grep limpio es evidencia técnica para mañana."],
+ accesibilidad:["Escuchar (en texto) lo que un lector de pantalla anuncia con y sin los atributos aria.","Combine los tres interruptores y reproduzca una respuesta y un error.","Que la respuesta se anuncie una vez completa y el error de inmediato: accesibilidad real del streaming."]
+};
+function inicio(m){
+  m.innerHTML = `<section class="hero"><div class="ey">Clase 4 · Laboratorio interactivo</div><h2>La cara de su producto, por dentro.</h2>
+    <p>Ocho retos cortos que repiten, con las manos, lo que vimos en las diapositivas, dentro de una pantalla simulada de Reseñas de Ambato. Nada se instala, nada gasta cupo y equivocarse no cuesta nada.</p></section>
+  <div class="pasos3">
+    <div class="card"><div class="n">1</div><h3>Lea «En palabras simples»</h3><p style="margin:0;color:var(--muted)">Cada reto empieza con una explicación sin tecnicismos y un mini glosario. Nada se da por sabido.</p></div>
+    <div class="card"><div class="n">2</div><h3>Siga los pasos numerados</h3><p style="margin:0;color:var(--muted)">La tarjeta «Su tarea» dice exactamente qué hacer, paso por paso, y el resultado se ve al instante.</p></div>
+    <div class="card"><div class="n">3</div><h3>Cumpla el objetivo</h3><p style="margin:0;color:var(--muted)">El reto se marca con ✓ solo cuando lo logra. Al final, suba la captura del Resumen al chat con su número de grupo.</p></div>
+  </div>
+  <div class="card gloss" style="margin-bottom:20px"><h3>Las palabras de hoy, en simple</h3><dl>
+    <dt>token</dt><dd>pedacito de texto con el que el modelo cobra y entrega; una palabra suele ser 1 o 2 tokens</dd>
+    <dt>streaming</dt><dd>la respuesta llega por partes y se va mostrando, en lugar de esperar a que esté completa</dd>
+    <dt>evento</dt><dd>un aviso con nombre que envía el backend por el stream: token, fin o error</dd>
+    <dt>búfer</dt><dd>una bandeja donde se junta lo que va llegando hasta que algo está completo</dd>
+    <dt>contrato</dt><dd>la lista exacta de qué recibe y qué responde la API: campos, tipos y códigos</dd>
+    <dt>código de estado</dt><dd>el número que resume la respuesta del servidor: 201 creado · 422 datos inválidos · 429 espera · 503 caído</dd>
+    <dt>.env</dt><dd>archivo de configuración que vive fuera del código; ahí van las claves, y nunca se publica</dd>
+    <dt>lector de pantalla</dt><dd>programa que lee la interfaz en voz alta a una persona que no ve la pantalla</dd>
+  </dl></div>
+  <div class="mods">${RETOS.map((r,i) => { const g = GUIA[r.id]; return `<div class="card mod ${hechos.has(r.id) ? "hecho" : ""}"><div class="cab"><span class="num">${hechos.has(r.id) ? "✓" : i+1}</span><div><h3>${esc(r.titulo)}</h3><small style="color:var(--muted)">${esc(r.nav)} · ${esc(r.dia)}</small></div></div>
+    <dl><dt>Qué es</dt><dd>${esc(g[0])}</dd><dt>Cómo se usa</dt><dd>${esc(g[1])}</dd><dt>Qué logra</dt><dd>${esc(g[2])}</dd></dl>
+    <div><button class="btn g" type="button" data-ir="${i}">Abrir el reto ${i+1}</button></div></div>` }).join("")}</div>
+  <div class="centro"><button class="btn" type="button" data-ir="0" style="padding:12px 26px;font-size:17px">Empezar con el reto 1</button></div>`;
+  m.querySelectorAll("[data-ir]").forEach(b => b.onclick = () => { actual = +b.dataset.ir; ST.set("actual", actual); tabs(); render(); scrollTo(0,0) });
+}
+function tabs(){
+  $("#tabs").innerHTML = `<button role="tab" type="button" data-i="-1" aria-selected="${actual===-1}">Inicio</button>` + RETOS.map((r,i) => `<button role="tab" type="button" data-i="${i}" aria-selected="${i===actual}" class="${hechos.has(r.id) ? "hecho" : ""}"><span class="d">${hechos.has(r.id) ? "✓" : i+1}</span>${esc(r.nav)}</button>`).join("") +
+    `<button role="tab" type="button" data-i="${RETOS.length}" aria-selected="${actual===RETOS.length}">Resumen</button>` +
+    `<button role="tab" type="button" data-i="${RETOS.length+1}" aria-selected="${actual===RETOS.length+1}">Docente</button>`;
+}
+$("#tabs").onclick = e => { const b = e.target.closest("[data-i]"); if (!b) return; actual = +b.dataset.i; ST.set("actual", actual); tabs(); render() };
+function grupoChip(){const g=ST.get("grupo4",null);$("#gch").textContent=g?("Grupo "+g):"Grupo —"}
+function porton(m){
+  m.innerHTML=`<section class="hero"><div class="ey">Antes de empezar</div><h2>¿Qué grupo son?</h2>
+    <p>Los envíos de intentos quedan registrados a nombre del grupo, así que elíjanlo con cuidado: después del primer envío ya no se puede cambiar.</p></section>
+    <div class="row" style="justify-content:center;max-width:560px;margin:20px auto">${Array.from({length:11},(_,i)=>`<button class="btn g" type="button" data-g="${i+1}" style="width:72px;font-size:17px">${i+1}</button>`).join("")}</div>
+    <p style="text-align:center;color:var(--muted)">¿Es usted el docente? Entre directamente por la pestaña <b>Docente</b>, arriba.</p>`;
+  m.querySelectorAll("[data-g]").forEach(b=>b.onclick=()=>{ST.set("grupo4",+b.dataset.g);grupoChip();actual=-1;ST.set("actual",actual);tabs();render()});
+}
+function barraEnvio(r){
+  const us=(envios[r.id]||[]), queda=MAX_INTENTOS-us.length, pr=puntajeReto(r.id), cerrado=cerrados.has(r.id)||queda<=0;
+  const ult=us.length?us[us.length-1]:null;
+  return `<div class="card" style="margin-top:16px;border-color:var(--b2)"><div class="row" style="justify-content:space-between">
+    <div><b style="font-size:12.5px;color:var(--b2)">ENVÍO DEL RETO · ${esc(RETO_NOMBRE[r.id])}</b>
+    <p style="margin:4px 0 0;font-size:15px" id="envPuntaje">Puntaje actual: <b>${pr.p}/100</b> (${esc(pr.d)})${ult?` · Último envío: intento ${ult.intento} con ${ult.p}/100`:""}</p>
+    <p style="margin:2px 0 0;font-size:13.5px;color:var(--muted)">${cerrado?"Intentos agotados: este reto quedó cerrado.":`Quedan ${queda} de ${MAX_INTENTOS} intentos. El intento envía el puntaje tal como está ahora.`}</p></div>
+    <button class="btn" type="button" id="envBtn" ${cerrado?"disabled":""}>Enviar intento ${us.length+1}</button></div><div id="envFb"></div></div>`;
+}
+/* El puntaje de la barra se quedaba congelado al abrir la pestaña: se renderizaba
+   una sola vez y no volvía a calcular puntajeReto() al responder. Este helper lo
+   refresca sin recargar todo el reto (no se pierde el foco ni el estado del quiz). */
+function refrescarPuntaje(){
+  const r = RETOS[actual];
+  if (!r || actual < 0 || actual >= RETOS.length) return;
+  const p = document.querySelector("#envPuntaje");
+  if (!p) return;
+  const pr = puntajeReto(r.id);
+  const us = envios[r.id] || [];
+  const ult = us.length ? us[us.length-1] : null;
+  p.innerHTML = `Puntaje actual: <b>${pr.p}/100</b> (${esc(pr.d)})${ult?` · Último envío: intento ${ult.intento} con ${ult.p}/100`:""}`;
+}
+function candado(r){
+  if(!(cerrados.has(r.id)||(envios[r.id]||[]).length>=MAX_INTENTOS))return;
+  const z=$("#zona");if(!z)return;z.style.pointerEvents="none";z.style.opacity=".55";
+  z.insertAdjacentHTML("beforebegin",`<p class="fb warn" style="margin:0 0 12px">🔒 Reto cerrado: ya usaron sus ${MAX_INTENTOS} intentos. Pueden mirar, pero no cambiar.</p>`);
+}
+async function enviarIntento(r){
+  const btn=$("#envBtn"),fb=$("#envFb");const pr=puntajeReto(r.id);const g=ST.get("grupo4",null);
+  if(!g){fb.innerHTML=`<p class="fb warn">Primero elijan su grupo (botón «Grupo —», arriba).</p>`;return}
+  if(ENDPOINT.indexOf("http")!==0){fb.innerHTML=`<p class="fb warn">Falta configurar la dirección del servidor (el docente aún no pegó la URL del Apps Script).</p>`;return}
+  if(!confirm(`Grupo ${g} · ${RETO_NOMBRE[r.id]}\nSe enviará el intento ${(envios[r.id]||[]).length+1} con ${pr.p}/100 (${pr.d}).\n¿Enviar ahora?`))return;
+  btn.disabled=true;fb.innerHTML=`<p class="fb warn">Enviando…</p>`;
+  try{
+    const res=await llamar({accion:"intento",grupo:g,reto:r.id,puntaje:pr.p,detalle:pr.d});
+    if(res.ok){(envios[r.id]=envios[r.id]||[]).push({intento:res.intento,p:pr.p,d:pr.d});ST.set("envios",envios);ST.set("grupoFijo",true);
+      if(res.usados>=MAX_INTENTOS){cerrados.add(r.id);ST.set("cerrados",[...cerrados])}
+      fb.innerHTML=`<p class="fb ok"><b>✓ Intento ${res.intento} registrado</b> con ${pr.p}/100.${res.usados>=MAX_INTENTOS?" Era el último: el reto queda cerrado.":""}</p>`;
+      setTimeout(render,1200)}
+    else if(res.error==="sin_intentos"){cerrados.add(r.id);ST.set("cerrados",[...cerrados]);fb.innerHTML=`<p class="fb bad">El servidor indica que este grupo ya usó sus ${MAX_INTENTOS} intentos en este reto.</p>`;setTimeout(render,1500)}
+    else {fb.innerHTML=`<p class="fb bad">El servidor rechazó el envío (${esc(res.error||"desconocido")}). No se gastó el intento.</p>`;btn.disabled=false}
+  }catch(e){fb.innerHTML=`<p class="fb bad">No se pudo conectar. Revisen el internet y vuelvan a intentar: el intento NO se gastó.</p>`;btn.disabled=false}
+}
+async function docente(m){
+  const cred=(function(){try{return sessionStorage.getItem("lab-c4:cred")}catch(e){return null}})();
+  if(!cred){
+    m.innerHTML=`<div class="card" style="max-width:460px;margin:40px auto"><h3>Panel del docente</h3>
+      <p class="lbl">Usuario</p><input type="text" id="du" autocomplete="username" style="width:100%">
+      <p class="lbl" style="margin-top:10px">Contraseña</p><input type="password" id="dp" autocomplete="current-password" style="width:100%">
+      <div class="row" style="margin-top:14px"><button class="btn" id="dgo">Entrar</button></div><div id="dfb"></div></div>`;
+    $("#dgo").onclick=async()=>{const u=$("#du").value.trim(),p2=$("#dp").value;$("#dfb").innerHTML=`<p class="fb warn">Verificando…</p>`;
+      if(ENDPOINT.indexOf("http")!==0){$("#dfb").innerHTML=`<p class="fb warn">Falta pegar la URL del Apps Script en la línea ENDPOINT del archivo.</p>`;return}
+      const h=(await sha256(u+":"+p2)).toLowerCase();
+      try{const res=await llamar({accion:"resultados",credencial:h});
+        if(res.ok){try{sessionStorage.setItem("lab-c4:cred",h)}catch(e){};docente(m)}
+        else $("#dfb").innerHTML=`<p class="fb bad">Usuario o contraseña incorrectos.</p>`}
+      catch(e){$("#dfb").innerHTML=`<p class="fb bad">No se pudo conectar con el servidor.</p>`}};
+    $("#dp").onkeydown=e=>{if(e.key==="Enter")$("#dgo").click()};
+    return;
+  }
+  m.innerHTML=`<div class="card"><div class="row" style="justify-content:space-between"><h3 style="margin:0">Resultados de los 11 grupos</h3>
+    <div class="row"><button class="btn g" id="dref">Actualizar</button><button class="btn g" id="dout">Cerrar sesión</button></div></div>
+    <div id="dtab" style="overflow-x:auto;margin-top:14px"><p class="fb warn">Cargando…</p></div></div>`;
+  $("#dout").onclick=()=>{try{sessionStorage.removeItem("lab-c4:cred")}catch(e){};docente(m)};
+  $("#dref").onclick=()=>docente(m);
+  try{
+    const res=await llamar({accion:"resultados",credencial:cred});
+    if(!res.ok){try{sessionStorage.removeItem("lab-c4:cred")}catch(e){};docente(m);return}
+    const ids=RETOS.map(r=>r.id);const M={};
+    res.filas.forEach(f=>{const g=String(f.grupo);M[g]=M[g]||{};const c=M[g][f.reto]=M[g][f.reto]||{mejor:0,n:0,d:""};c.n++;if(+f.puntaje>=c.mejor){c.mejor=+f.puntaje;c.d=f.detalle}});
+    let html=`<table><thead><tr><th>Grupo</th>${ids.map(id=>`<th>${esc(RETO_NOMBRE[id])}</th>`).join("")}<th>Promedio</th></tr></thead><tbody>`;
+    for(let g=1;g<=11;g++){const fila=M[String(g)]||{};let sum=0,con=0;
+      html+=`<tr><td><b>${g}</b></td>`+ids.map(id=>{const c=fila[id];if(!c)return`<td style="color:var(--muted)">—</td>`;sum+=c.mejor;con++;
+        return`<td title="${esc(c.d)}"><b style="color:${c.mejor>=80?"var(--ok)":c.mejor>=50?"var(--warn)":"var(--bad)"}">${c.mejor}</b><small style="color:var(--muted)"> ·${c.n}/${MAX_INTENTOS}</small></td>`}).join("")
+        +`<td>${con?`<b>${Math.round(sum/ids.length)}</b>/100`:"—"}</td></tr>`}
+    html+=`</tbody></table><p style="font-size:13px;color:var(--muted);margin-top:10px">En cada celda: mejor puntaje de los intentos · intentos usados. Pase el cursor para ver el detalle. Total de envíos: ${res.filas.length}.</p>`;
+    $("#dtab").innerHTML=html;
+  }catch(e){$("#dtab").innerHTML=`<p class="fb bad">No se pudo conectar con el servidor.</p>`}
+}
+function render(){
+  const m = $("#main");
+  grupoChip();
+  if (actual === RETOS.length+1) { docente(m); return }
+  if (ST.get("grupo4",null)===null) { porton(m); return }
+  if (actual === -1) { inicio(m); return }
+  if (actual >= RETOS.length) {
+    const n = RETOS.filter(r => hechos.has(r.id)).length;
+    m.innerHTML = `<div class="card final"><p class="tag">Resumen</p><h2 style="font:700 30px var(--fd);margin:6px 0">${n} de ${RETOS.length} retos cumplidos</h2>
+      <p style="color:var(--muted)">Tome una captura de esta pantalla y súbala al chat de la clase con el número de su grupo.</p>
+      <div style="max-width:560px;margin:16px auto;text-align:left">${RETOS.map(r => `<div class="item ${hechos.has(r.id) ? "ok" : ""}"><div><b>${esc(r.nav)}</b> · ${esc(r.titulo)}<small>${esc(r.dia)}</small></div><span>${hechos.has(r.id) ? "✓" : "pendiente"}</span></div>`).join("")}</div>
+      <label>Grupo: <select id="grp">${Array.from({length:11}, (_,i) => `<option ${+ST.get("grupo4",0)===i+1?"selected":""}>${i+1}</option>`).join("")}</select></label>
+      <p style="margin-top:18px"><button class="btn g" type="button" id="reset">Reiniciar el laboratorio</button></p></div>`;
+    $("#grp").onchange = e => ST.set("grupo4", +e.target.value);
+    $("#reset").onclick = () => { try { Object.keys(localStorage).filter(k => k.startsWith("lab-c4:")).forEach(k => localStorage.removeItem(k)) } catch(e){} 
+      hechos.clear(); cerrados.clear();
+      for (const k of Object.keys(envios)) delete envios[k];
+      ST.set("envios", {}); ST.set("cerrados", []);
+      actual = -1; progreso(); tabs(); render() };
+    return;
+  }
+  const r = RETOS[actual];
+  m.innerHTML = `<section class="intro"><div><span class="tag">Reto ${actual+1} de ${RETOS.length} · ${esc(r.dia)} de la clase</span><h2>${esc(r.titulo)}</h2><p>${esc(r.idea)}</p></div>
+    <div class="tarea"><b>Su tarea, paso a paso</b><ol>${r.tarea.map(t => `<li>${esc(t)}</li>`).join("")}</ol></div></section>
+    <div class="simple"><b>EN PALABRAS SIMPLES</b><p>${esc(r.simple)}</p><dl>${r.terms.map(t => `<dt>${esc(t[0])}</dt><dd>${esc(t[1])}</dd>`).join("")}</dl></div>
+    <div id="zona"></div>
+    <div class="row" style="justify-content:space-between;margin-top:16px"><button class="btn g" type="button" id="ant">${actual===0 ? "← Inicio" : "← Anterior"}</button><button class="btn" type="button" id="sig">${actual===RETOS.length-1 ? "Ver resumen →" : "Siguiente →"}</button></div>`;
+  r.render($("#zona"));
+  $("#zona").insertAdjacentHTML("afterend", barraEnvio(r));
+  const _eb=$("#envBtn"); if(_eb)_eb.onclick=()=>enviarIntento(r);
+  candado(r);
+  $("#ant").onclick = () => { actual--; ST.set("actual", actual); tabs(); render(); scrollTo(0,0) };
+  $("#sig").onclick = () => { actual++; ST.set("actual", actual); tabs(); render(); scrollTo(0,0) };
+}
+$("#gch").onclick=()=>{ if(ST.get("grupoFijo",false)||Object.keys(envios).length){alert("El grupo ya quedó fijado: hay intentos enviados a su nombre.");return } ST.set("grupo4",null);render() };
+progreso(); tabs(); render();
+</script></body></html>
