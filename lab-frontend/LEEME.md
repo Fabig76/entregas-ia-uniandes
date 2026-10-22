@@ -34,7 +34,9 @@ hoja de cálculo suya a través del Apps Script, igual que en el portal de entre
   editar la página no da intentos extra. Tras el segundo, el reto se bloquea.
 - **Docente.** Pestaña «Docente» → usuario y contraseña. La contraseña no está en
   ningún archivo: el navegador calcula su huella SHA-256 y el servidor la compara.
-  La tabla muestra, por grupo y por reto, el mejor puntaje y los intentos usados.
+  El panel muestra cuatro indicadores (envíos totales, grupos activos, promedio
+  general y quién lidera), medallas para los tres mejores grupos, una barra de
+  progreso en cada celda y columnas ordenables (clic en el encabezado).
 - **Respaldo.** Todo queda también en la hoja de cálculo `LabC4`, fila por fila.
 
 ## Límites honestos
