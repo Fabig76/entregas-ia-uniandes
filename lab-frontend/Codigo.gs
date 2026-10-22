@@ -12,10 +12,10 @@
  *
  * La contraseña del docente NO está aquí ni en el HTML: solo esta huella SHA-256
  * de "usuario:contraseña". El navegador calcula la huella y este script la compara.
- * (Usuario: docente · Contraseña: LabC4-2026)
+ * La contraseña en claro no se escribe en ningún archivo: solo usted la conoce.
  */
 const SHEET_ID = "10eF3-hIR20sslZXKzKjknkTZal-5B0dS4UljOLh8tao";
-const HASH_DOCENTE = "5ec6fb0357c717892311df6de7b76d57ec1ec4d2ef55d05190fd1b708c133b4a";
+const HASH_DOCENTE = "8b961ca30234e3d67466576a72d3d9b5602ef8330d8fb2bdbd3ed9396a26d6cc";
 const HOJA = "LabC4";
 const MAX_INTENTOS = 2;
 const RETOS = ["estados","contrato","parser","detener","errores","renderizado","secretos","accesibilidad"];
