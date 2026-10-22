@@ -117,6 +117,59 @@ footer{color:var(--muted);font-size:13px;padding-block:10px 40px;text-align:cent
 .centro{text-align:center;margin-top:24px}
 @media (max-width:860px){.intro,.grid2,.mods,.pasos3{grid-template-columns:1fr}.term{max-height:none}}
 @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+
+/* ══════════ PANEL DEL DOCENTE · diseño con jerarquía visual ══════════ */
+.dk{display:flex;flex-direction:column;gap:16px}
+.dk-head{display:flex;justify-content:space-between;align-items:flex-end;gap:16px;flex-wrap:wrap}
+.dk-head h3{margin:0;font-size:21px}
+.dk-head .sub{color:var(--muted);font-size:14px;margin:3px 0 0}
+.dk-kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px}
+.dk-kpi{background:var(--panel);border:2px solid var(--line);border-radius:16px;padding:14px 16px;display:flex;flex-direction:column;gap:2px;transition:transform .25s,box-shadow .25s}
+.dk-kpi:hover{transform:translateY(-2px);box-shadow:var(--shadow)}
+.dk-kpi .lb{font-size:11.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.dk-kpi .vl{font:700 30px/1.1 var(--fd);letter-spacing:-.02em}
+.dk-kpi .hint{font-size:12.5px;color:var(--muted)}
+.dk-kpi.k-envios{border-color:var(--b1)} .dk-kpi.k-envios .vl{color:var(--b1)}
+.dk-kpi.k-activos{border-color:var(--b3)} .dk-kpi.k-activos .vl{color:var(--acc2)}
+.dk-kpi.k-promo{border-color:var(--ok)}  .dk-kpi.k-promo .vl{color:var(--ok)}
+.dk-kpi.k-top{border-color:var(--b2)}    .dk-kpi.k-top .vl{color:var(--b2)}
+
+.dk-scroll{overflow-x:auto;border-radius:16px;border:2px solid var(--line);background:var(--panel)}
+.dk-table{width:100%;border-collapse:separate;border-spacing:0;font-size:14.5px;min-width:880px}
+.dk-table th{position:sticky;top:0;background:var(--soft);color:var(--muted);font-size:11.5px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;padding:11px 10px;text-align:center;border-bottom:2px solid var(--line);white-space:nowrap;cursor:pointer;user-select:none;transition:background .2s}
+.dk-table th:hover{background:var(--line)}
+.dk-table th.sg{text-align:left;cursor:default}
+.dk-table th.sg:hover{background:var(--soft)}
+.dk-table th .arrow{opacity:.35;font-size:10px;margin-left:3px}
+.dk-table th.sorted{color:var(--acc2)} .dk-table th.sorted .arrow{opacity:1}
+.dk-table td{padding:9px 10px;text-align:center;border-bottom:1px solid var(--line);vertical-align:middle}
+.dk-table tbody tr{transition:background .18s}
+.dk-table tbody tr:hover{background:var(--soft)}
+.dk-table tbody tr:last-child td{border-bottom:0}
+.dk-g{display:flex;align-items:center;gap:9px;justify-content:flex-start}
+.dk-med{width:26px;height:26px;border-radius:50%;display:grid;place-items:center;font-size:12.5px;font-weight:800;flex:none;background:var(--line);color:var(--ink)}
+.dk-med.m1{background:#F5D244;color:#4A3A00} .dk-med.m2{background:#D9DCE3;color:#3A3F47}
+.dk-med.m3{background:#E0A574;color:#4A2A0E}
+.dk-gnum{font-weight:700;font-size:15px}
+.dk-cell{display:flex;flex-direction:column;align-items:center;gap:3px;min-width:52px}
+.dk-val{font-weight:700;font-size:15px;line-height:1}
+.dk-bar{width:44px;height:5px;border-radius:99px;background:var(--line);overflow:hidden}
+.dk-bar i{display:block;height:100%;border-radius:99px;transition:width .6s cubic-bezier(.4,0,.2,1)}
+.dk-att{font-size:11px;color:var(--muted);line-height:1}
+.dk-none{color:var(--line);font-size:17px}
+.dk-total{display:flex;flex-direction:column;align-items:center;gap:4px}
+.dk-tbar{width:74px;height:8px;border-radius:99px;background:var(--line);overflow:hidden}
+.dk-tbar i{display:block;height:100%;border-radius:99px;transition:width .8s cubic-bezier(.4,0,.2,1)}
+.dk-legend{display:flex;gap:16px;flex-wrap:wrap;font-size:12.5px;color:var(--muted);align-items:center}
+.dk-legend span{display:flex;align-items:center;gap:6px}
+.dk-dot{width:10px;height:10px;border-radius:3px;display:inline-block}
+.dk-foot{font-size:13px;color:var(--muted);display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;align-items:center}
+.dk-empty{text-align:center;padding:44px 20px;color:var(--muted)}
+.dk-empty .big{font-size:40px;margin-bottom:8px}
+.dk-row-in{animation:dkIn .45s cubic-bezier(.2,.7,.3,1) both}
+@keyframes dkIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.dk-bar i,.dk-tbar i{width:0}
+@media (max-width:860px){.dk-kpis{grid-template-columns:repeat(2,1fr)}}
 </style></head><body>
 <header><div class="wrap">
  <div class="top"><div><small>Módulo 2 · Clase 4 · Desarrollo Frontend · UNIANDES</small><h1>Laboratorio de Frontend</h1></div>
@@ -575,9 +628,14 @@ async function docente(m){
     $("#dp").onkeydown=e=>{if(e.key==="Enter")$("#dgo").click()};
     return;
   }
-  m.innerHTML=`<div class="card"><div class="row" style="justify-content:space-between"><h3 style="margin:0">Resultados de los 11 grupos</h3>
-    <div class="row"><button class="btn g" id="dref">Actualizar</button><button class="btn g" id="dout">Cerrar sesión</button></div></div>
-    <div id="dtab" style="overflow-x:auto;margin-top:14px"><p class="fb warn">Cargando…</p></div></div>`;
+  m.innerHTML=`<div class="dk">
+    <div class="dk-head">
+      <div><h3>Panel del docente</h3><p class="sub" id="dkSub">Cargando resultados…</p></div>
+      <div class="row"><button class="btn g" id="dref">↻ Actualizar</button><button class="btn g" id="dout">Cerrar sesión</button></div>
+    </div>
+    <div class="dk-kpis" id="dkKpis"></div>
+    <div id="dtab"><p class="fb warn">Cargando…</p></div>
+  </div>`;
   $("#dout").onclick=()=>{try{sessionStorage.removeItem("lab-c4:cred")}catch(e){};docente(m)};
   $("#dref").onclick=()=>docente(m);
   try{
@@ -585,13 +643,99 @@ async function docente(m){
     if(!res.ok){try{sessionStorage.removeItem("lab-c4:cred")}catch(e){};docente(m);return}
     const ids=RETOS.map(r=>r.id);const M={};
     res.filas.forEach(f=>{const g=String(f.grupo);M[g]=M[g]||{};const c=M[g][f.reto]=M[g][f.reto]||{mejor:0,n:0,d:""};c.n++;if(+f.puntaje>=c.mejor){c.mejor=+f.puntaje;c.d=f.detalle}});
-    let html=`<table><thead><tr><th>Grupo</th>${ids.map(id=>`<th>${esc(RETO_NOMBRE[id])}</th>`).join("")}<th>Promedio</th></tr></thead><tbody>`;
-    for(let g=1;g<=11;g++){const fila=M[String(g)]||{};let sum=0,con=0;
-      html+=`<tr><td><b>${g}</b></td>`+ids.map(id=>{const c=fila[id];if(!c)return`<td style="color:var(--muted)">—</td>`;sum+=c.mejor;con++;
-        return`<td title="${esc(c.d)}"><b style="color:${c.mejor>=80?"var(--ok)":c.mejor>=50?"var(--warn)":"var(--bad)"}">${c.mejor}</b><small style="color:var(--muted)"> ·${c.n}/${MAX_INTENTOS}</small></td>`}).join("")
-        +`<td>${con?`<b>${Math.round(sum/ids.length)}</b>/100`:"—"}</td></tr>`}
-    html+=`</tbody></table><p style="font-size:13px;color:var(--muted);margin-top:10px">En cada celda: mejor puntaje de los intentos · intentos usados. Pase el cursor para ver el detalle. Total de envíos: ${res.filas.length}.</p>`;
-    $("#dtab").innerHTML=html;
+
+    /* --- Calcular métricas por grupo --- */
+    const cols=["grupo","reto","total"];
+    const datos=[];
+    for(let g=1;g<=11;g++){
+      const fila=M[String(g)]||{};let sum=0,con=0;
+      const celdas=ids.map(id=>{const c=fila[id];if(c){sum+=c.mejor;con++;}return c||null});
+      datos.push({g:String(g),celdas,sum,con,prom:Math.round(sum/ids.length)});
+    }
+    const activos=datos.filter(d=>d.con>0).length;
+    const conTodo=datos.filter(d=>d.con===ids.length).length;
+    const promedio=datos.length?Math.round(datos.reduce((a,d)=>a+d.prom,0)/datos.length):0;
+    const top=datos.slice().sort((a,b)=>b.prom-a.prom)[0];
+    const mejor=top&&top.con?top:null;
+
+    /* --- KPIs --- */
+    $("#dkKpis").innerHTML=`
+      <div class="dk-kpi k-envios"><span class="lb">Envíos totales</span><span class="vl">${res.filas.length}</span><span class="hint">intentos registrados</span></div>
+      <div class="dk-kpi k-activos"><span class="lb">Grupos activos</span><span class="vl">${activos}<span style="font-size:17px;color:var(--muted)">/11</span></span><span class="hint">${conTodo} completaron los 8 retos</span></div>
+      <div class="dk-kpi k-promo"><span class="lb">Promedio general</span><span class="vl">${promedio}</span><span class="hint">sobre 100 puntos</span></div>
+      <div class="dk-kpi k-top"><span class="lb">Liderando</span><span class="vl">${mejor?"G"+mejor.g:"—"}</span><span class="hint">${mejor?mejor.prom+" puntos de promedio":"sin envíos aún"}</span></div>`;
+    $("#dkSub").innerHTML=`${activos===0?"Ningún envío todavía":`${activos} grupo${activos===1?"":"s"} ha${activos===1?"":"n"} enviado · ${res.filas.length} intento${res.filas.length===1?"":"s"} en total`}`;
+
+    if(!res.filas.length){
+      $("#dtab").innerHTML=`<div class="dk-scroll"><div class="dk-empty"><div class="big">🗒️</div><p style="margin:0 0 6px"><b>Todavía no hay envíos.</b></p><p style="margin:0">Los grupos aparecerán aquí en cuanto envíen su primer intento.</p></div></div>`;
+      return;
+    }
+
+    /* --- Ordenamiento --- */
+    let orden="grupo", desc=false;
+    const colorDe=p=>p>=80?"var(--ok)":p>=50?"var(--warn)":"var(--bad)";
+
+    const pinta=()=>{
+      let filas=datos.slice();
+      if(orden==="grupo"){filas.sort((a,b)=>desc?+b.g-+a.g:+a.g-+b.g)}
+      else if(orden==="total"){filas.sort((a,b)=>desc?a.prom-b.prom:b.prom-a.prom)}
+      else {const i=ids.indexOf(orden);filas.sort((a,b)=>{const x=a.celdas[i],y=b.celdas[i];
+        const xv=x?x.mejor:-1,yv=y?y.mejor:-1;return desc?xv-yv:yv-xv})}
+      // medallas segun posicion (solo si hay puntaje)
+      const conP=datos.filter(d=>d.con>0).sort((a,b)=>b.prom-a.prom);
+      const rank={};conP.forEach((d,i)=>rank[d.g]=i+1);
+
+      let html=`<div class="dk-scroll"><table class="dk-table"><thead><tr>
+        <th data-sort="grupo" class="sg ${orden==="grupo"?"sorted":""}">Grupo<span class="arrow">${orden==="grupo"?(desc?"▼":"▲"):"⇅"}</span></th>
+        ${ids.map(id=>`<th data-sort="${id}" class="${orden===id?"sorted":""}">${esc(RETO_NOMBRE[id])}<span class="arrow">${orden===id?(desc?"▼":"▲"):"⇅"}</span></th>`).join("")}
+        <th data-sort="total" class="${orden==="total"?"sorted":""}">Promedio<span class="arrow">${orden==="total"?(desc?"▼":"▲"):"⇅"}</span></th>
+      </tr></thead><tbody>`;
+      filas.forEach((d,idx)=>{
+        const rk=rank[d.g];
+        const med=rk&&rk<=3?`<span class="dk-med m${rk}">${rk}</span>`:`<span class="dk-med">${d.g}</span>`;
+        html+=`<tr class="dk-row-in" style="animation-delay:${Math.min(idx*40,400)}ms">
+          <td><div class="dk-g">${med}<span class="dk-gnum">Grupo ${d.g}</span></div></td>`;
+        d.celdas.forEach(c=>{
+          if(!c){html+=`<td><span class="dk-none">·</span></td>`;return}
+          html+=`<td title="${esc(c.d)}"><div class="dk-cell">
+            <span class="dk-val" style="color:${colorDe(c.mejor)}">${c.mejor}</span>
+            <span class="dk-bar"><i style="width:${c.mejor}%;background:${colorDe(c.mejor)}"></i></span>
+            <span class="dk-att">${c.n}/${MAX_INTENTOS} intentos</span>
+          </div></td>`;
+        });
+        const pcol=colorDe(d.prom);
+        html+=`<td><div class="dk-total">
+            <span class="dk-val" style="color:${pcol};font-size:16px">${d.con?d.prom:"—"}</span>
+            <span class="dk-tbar"><i style="width:${d.prom}%;background:${pcol}"></i></span>
+            <span class="dk-att">${d.con}/${ids.length} retos</span>
+          </div></td></tr>`;
+      });
+      html+=`</tbody></table></div>`;
+      html+=`<div class="dk-legend" style="margin-top:12px">
+        <span><i class="dk-dot" style="background:var(--ok)"></i>Óptimo (80+)</span>
+        <span><i class="dk-dot" style="background:var(--warn)"></i>En curso (50-79)</span>
+        <span><i class="dk-dot" style="background:var(--bad)"></i>Bajo (1-49)</span>
+        <span style="margin-left:auto">Pase el cursor sobre una celda para ver el detalle del intento</span>
+      </div>`;
+      html+=`<div class="dk-foot" style="margin-top:8px"><span>Total de envíos: ${res.filas.length}</span><span>Las medallas marcan los tres mejores grupos por promedio</span></div>`;
+      $("#dtab").innerHTML=html;
+
+      // sortable
+      $("#dtab").querySelectorAll("th[data-sort]").forEach(th=>{
+        th.onclick=()=>{const k=th.dataset.sort;
+          if(orden===k)desc=!desc;else{orden=k;desc=false}
+          pinta();
+        };
+      });
+      // animar barras despues del render
+      requestAnimationFrame(()=>requestAnimationFrame(()=>{
+        $("#dtab").querySelectorAll(".dk-bar i,.dk-tbar i").forEach((el,i)=>{
+          const w=el.style.width;el.style.width="0";
+          setTimeout(()=>{el.style.width=w},i*12);
+        });
+      }));
+    };
+    pinta();
   }catch(e){$("#dtab").innerHTML=`<p class="fb bad">No se pudo conectar con el servidor.</p>`}
 }
 function render(){
